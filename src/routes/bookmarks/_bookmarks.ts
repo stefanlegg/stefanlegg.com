@@ -39,6 +39,13 @@ const bookmarks: Bookmark[] = [
             "Cloudflare Pages is a JAMstack platform for frontend developers to collaborate and deploy websites. Unlimited sites, unlimited requests, unlimited bandwidth... wow!",
         link: "https://pages.cloudflare.com/",
     },
+    {
+        type: BookmarkType.tool,
+        title: "Microsoft PowerToys",
+        content:
+            "Microsoft PowerToys is a set of free utilities for users to customize and improve their Windows 10 experience. Some of its best features include a color picker, image resizer, and the ability to create custom snap zones.",
+        link: "https://github.com/microsoft/PowerToys",
+    },
 ];
 
 export default bookmarks;
