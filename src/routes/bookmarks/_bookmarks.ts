@@ -13,11 +13,30 @@ interface Bookmark {
 
 const bookmarks: Bookmark[] = [
     {
-        type: BookmarkType.tweet,
-        title: "@addyosmani",
+        type: BookmarkType.tool,
+        title: "Baserow",
+        content: "A no-code platform for building databases in an excel-like web interface. Essentially an open source alternative to Airtable.",
+        link: "https://baserow.io/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "Microsoft PowerToys",
         content:
-            "How Spotify makes text on images more readable: a CSS linear-gradient overlay. More common these days, but still an effective technique for better color contrast.",
-        link: "https://twitter.com/addyosmani/status/1365735686838493187",
+            "Microsoft PowerToys is a set of free utilities for users to customize and improve their Windows 10 experience. Some of its best features include a color picker, image resizer, and the ability to create custom snap zones.",
+        link: "https://github.com/microsoft/PowerToys",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "Cloudflare Pages",
+        content:
+            "Cloudflare Pages is a JAMstack platform for frontend developers to collaborate and deploy websites. Unlimited sites, unlimited requests, unlimited bandwidth... wow!",
+        link: "https://pages.cloudflare.com/",
+    },
+    {
+        type: BookmarkType.tweet,
+        title: "@sarah_edo",
+        content: "A small thread on why JS devs might find Go interesting (this thread is not for Go devs, it is intentionally 101) 🧵",
+        link: "https://twitter.com/sarah_edo/status/1366068234370256897",
     },
     {
         type: BookmarkType.tweet,
@@ -28,23 +47,10 @@ const bookmarks: Bookmark[] = [
     },
     {
         type: BookmarkType.tweet,
-        title: "@sarah_edo",
-        content: "A small thread on why JS devs might find Go interesting (this thread is not for Go devs, it is intentionally 101) 🧵",
-        link: "https://twitter.com/sarah_edo/status/1366068234370256897",
-    },
-    {
-        type: BookmarkType.tool,
-        title: "Cloudflare Pages",
+        title: "@addyosmani",
         content:
-            "Cloudflare Pages is a JAMstack platform for frontend developers to collaborate and deploy websites. Unlimited sites, unlimited requests, unlimited bandwidth... wow!",
-        link: "https://pages.cloudflare.com/",
-    },
-    {
-        type: BookmarkType.tool,
-        title: "Microsoft PowerToys",
-        content:
-            "Microsoft PowerToys is a set of free utilities for users to customize and improve their Windows 10 experience. Some of its best features include a color picker, image resizer, and the ability to create custom snap zones.",
-        link: "https://github.com/microsoft/PowerToys",
+            "How Spotify makes text on images more readable: a CSS linear-gradient overlay. More common these days, but still an effective technique for better color contrast.",
+        link: "https://twitter.com/addyosmani/status/1365735686838493187",
     },
 ];
 
