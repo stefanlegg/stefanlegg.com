@@ -14,6 +14,12 @@ interface Bookmark {
 const bookmarks: Bookmark[] = [
     {
         type: BookmarkType.tool,
+        title: "CodeTour",
+        content: "CodeTour is a VS Code extension which allows you to record and view guided walkthroughs of your code.",
+        link: "https://github.com/microsoft/codetour",
+    },
+    {
+        type: BookmarkType.tool,
         title: "Baserow",
         content: "A no-code platform for building databases in an excel-like web interface. Essentially an open source alternative to Airtable.",
         link: "https://baserow.io/",
