@@ -14,6 +14,12 @@ interface Bookmark {
 const bookmarks: Bookmark[] = [
     {
         type: BookmarkType.tool,
+        title: "Spline",
+        content: "A design tool for creating 3D web experiences",
+        link: "https://spline.design/",
+    },
+    {
+        type: BookmarkType.tool,
         title: "CodeTour",
         content: "CodeTour is a VS Code extension which allows you to record and view guided walkthroughs of your code.",
         link: "https://github.com/microsoft/codetour",
