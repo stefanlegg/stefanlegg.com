@@ -14,8 +14,14 @@ interface Bookmark {
 const bookmarks: Bookmark[] = [
     {
         type: BookmarkType.tool,
+        title: "Squoosh",
+        content: "An open source web app for compressing and resizing images.",
+        link: "https://squoosh.app/",
+    },
+    {
+        type: BookmarkType.tool,
         title: "Spline",
-        content: "A design tool for creating 3D web experiences",
+        content: "A design tool for creating 3D web experiences.",
         link: "https://spline.design/",
     },
     {
