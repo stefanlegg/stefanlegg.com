@@ -14,6 +14,24 @@ interface Bookmark {
 const bookmarks: Bookmark[] = [
     {
         type: BookmarkType.tool,
+        title: "React Flow",
+        content: "A highly customizable React.js library for building node-based editors and diagrams.",
+        link: "https://reactflow.dev/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "Bravo Studio",
+        content: "A no-code tool to transform designs into fully functional iOS and Android apps.",
+        link: "https://bravostudio.app/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "Enso",
+        content: "An interactive programming language with dual visual and textual representations. Enso can use libraries from Java, JavaScript, R, and Python!",
+        link: "https://enso.org/",
+    },
+    {
+        type: BookmarkType.tool,
         title: "Squoosh",
         content: "An open source web app for compressing and resizing images.",
         link: "https://squoosh.app/",
