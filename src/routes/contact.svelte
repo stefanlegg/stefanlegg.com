@@ -8,13 +8,11 @@
     let submitted = false;
     let formError = false;
 
-    const contactForm = svelteForm(
-        () => ({
-            name: { value: name, validators: ['required'] },
-            email: { value: email, validators: ['required', 'email'] },
-            message: { value: message, validators: ['required'] }
-        })
-    );
+    const contactForm = svelteForm(() => ({
+        name: { value: name, validators: ["required"] },
+        email: { value: email, validators: ["required", "email"] },
+        message: { value: message, validators: ["required"] },
+    }));
 
     const handleSubmit = (event) => {
         fetch("https://worker.stefanlegg.com/contact", {
@@ -24,13 +22,15 @@
                 email,
                 name,
                 message,
-                honeypot
+                honeypot,
             }),
-        }).then(() => {
-            submitted = true;
-        }).catch((error) => {
-            formError = true;
-        });
+        })
+            .then(() => {
+                submitted = true;
+            })
+            .catch((error) => {
+                formError = true;
+            });
     };
 </script>
 
@@ -56,21 +56,33 @@
             <div class="fields">
                 <p>
                     <label for="name">Name</label>
-                    <input type="text" bind:value={name} use:bindClass={{ form: contactForm }} name="name" placeholder="Jane" required aria-required="true"/>
+                    <input type="text" bind:value={name} use:bindClass={{ form: contactForm }} id="name" name="name" placeholder="Jane" required aria-required="true" />
                 </p>
                 <p>
                     <label for="email">Email Address</label>
-                    <input type="email" bind:value={email} use:bindClass={{ form: contactForm }} name="email" placeholder="jane@gmail.com" required aria-required="true"/>
+                    <input
+                        type="email"
+                        bind:value={email}
+                        use:bindClass={{ form: contactForm }}
+                        id="email"
+                        name="email"
+                        placeholder="jane@gmail.com"
+                        required
+                        aria-required="true"
+                    />
                 </p>
             </div>
             <label for="message">Your Message</label>
-            <textarea bind:value={message} use:bindClass={{ form: contactForm }} name="message" rows="5" required aria-required="true" />
+            <textarea bind:value={message} use:bindClass={{ form: contactForm }} id="message" name="message" rows="5" required aria-required="true" />
             <div>
-                <button type="submit" name="submit" disabled="{!$contactForm.valid}">Submit</button>
+                <button type="submit" name="submit" disabled={!$contactForm.valid}>Submit</button>
                 {#if formError}
-                <span class="error-message">
-                    Something went wrong... <a href="https://twitter.com/intent/tweet?text=@stefanlegg%20Hey%21%20Looks%20like%20your%20contact%20form%20is%20broken%20%e2%98%b9%ef%b8%8f">want to let me know on Twitter?</a>
-                </span>
+                    <span class="error-message">
+                        Something went wrong... <a
+                            href="https://twitter.com/intent/tweet?text=@stefanlegg%20Hey%21%20Looks%20like%20your%20contact%20form%20is%20broken%20%e2%98%b9%ef%b8%8f"
+                            >want to let me know on Twitter?</a
+                        >
+                    </span>
                 {/if}
             </div>
         </form>

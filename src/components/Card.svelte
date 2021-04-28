@@ -17,7 +17,7 @@
             {content}
         </div>
         <div class="footer">
-            <a href={link}>Link <ExternalLinkIcon size="14" /></a>
+            <a href={link} aria-label={`Link to ${title}, ${content}`}>Link <ExternalLinkIcon size="14" /></a>
         </div>
     </div>
 </article>

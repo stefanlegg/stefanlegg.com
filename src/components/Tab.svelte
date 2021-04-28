@@ -1,9 +1,10 @@
 <script>
     export let href;
     export let active = false;
+    export let ariaLabel;
 </script>
 
-<a {href} class:active>
+<a {href} class:active aria-label={ariaLabel}>
     <span>
         <slot />
     </span>

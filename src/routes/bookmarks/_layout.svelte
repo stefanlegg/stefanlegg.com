@@ -12,15 +12,15 @@
 
     <div class="wrapper">
         <TabContainer>
-            <Tab href="/bookmarks" active={segment === undefined}>
+            <Tab href="/bookmarks" active={segment === undefined} ariaLabel={`Link to all bookmarks`}>
                 <BookmarkIcon size="18" />
                 <span>All</span>
             </Tab>
-            <Tab href="/bookmarks/tweets" active={segment === "tweets"}>
+            <Tab href="/bookmarks/tweets" active={segment === "tweets"} ariaLabel={`Link to bookmarked tweets`}>
                 <TwitterIcon size="18" />
                 <span>Tweets</span>
             </Tab>
-            <Tab href="/bookmarks/tools" active={segment === "tools"}>
+            <Tab href="/bookmarks/tools" active={segment === "tools"} ariaLabel={`Link to bookmarked tools`}>
                 <ToolIcon size="18" />
                 <span>Tools</span>
             </Tab>
