@@ -14,6 +14,36 @@ interface Bookmark {
 const bookmarks: Bookmark[] = [
     {
         type: BookmarkType.tool,
+        title: "tiptap",
+        content: "A headless, open source, framework-agnostic and extendable rich text editor.",
+        link: "https://www.tiptap.dev/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "ScaffoldHub",
+        content: "A JavaScript / TypeScript full-stack web app generator.",
+        link: "https://scaffoldhub.io/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "NocoDB",
+        content: "An open source Airtable alternative.",
+        link: "https://nocodb.com/",
+    },
+    {
+        type: BookmarkType.other,
+        title: "Awesome Privacy",
+        content: "A curated list of services and alternatives that respect your privacy.",
+        link: "https://github.com/pluja/awesome-privacy/",
+    },
+    {
+        type: BookmarkType.tool,
+        title: "Mailtrap",
+        content: "An email sandbox service that's useful for automated testing or validating your HTML & CSS.",
+        link: "https://mailtrap.io/",
+    },
+    {
+        type: BookmarkType.tool,
         title: "React Flow",
         content: "A highly customizable React.js library for building node-based editors and diagrams.",
         link: "https://reactflow.dev/",
