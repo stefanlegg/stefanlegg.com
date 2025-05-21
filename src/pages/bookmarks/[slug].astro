@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import formatDate from "@/utils/formatDate";
+
+export async function getStaticPaths() {
+  const bookmarks = await getCollection("bookmarks");
+
+  return bookmarks.map((bookmark) => ({
+    params: { slug: bookmark.slug },
+    props: { bookmark },
+  }));
+}
+
+type Props = {
+  bookmark: CollectionEntry<"bookmarks">;
+};
+
+const { bookmark } = Astro.props;
+const { Content } = await bookmark.render();
+---
+
+<Layout title={bookmark.data.title} description={bookmark.data.description}>
+  <main class="post mx-auto flex w-full max-w-prose flex-col gap-4">
+    <header role="presentation">
+      <h1 class="text-md">
+        {bookmark.data.title} - {formatDate(bookmark.data.publishedAt)}
+      </h1>
+      <p class="italic">{bookmark.data.description}</p>
+    </header>
+
+    <Content />
+  </main>
+</Layout>

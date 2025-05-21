@@ -1,6 +1,0 @@
-{
-    "semi": true,
-    "printWidth": 180,
-    "tabWidth": 4,
-    "svelteSortOrder": "options-scripts-markup-styles"
-}
