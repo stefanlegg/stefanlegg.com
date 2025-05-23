@@ -18,18 +18,14 @@ type Props = {
 };
 
 const { bookmark } = Astro.props;
-const { Content } = await bookmark.render();
+
+// Redirect to the bookmark's URL
+if (bookmark.data.url) {
+  return Astro.redirect(bookmark.data.url);
+}
+
+// Fallback or error handling if URL is not present, though the task implies it will be.
+// For now, let's assume the URL is always present.
+// If you want to handle cases where URL might be missing, we can add that.
 ---
-
-<Layout title={bookmark.data.title} description={bookmark.data.description}>
-  <main class="post mx-auto flex w-full max-w-prose flex-col gap-4">
-    <header role="presentation">
-      <h1 class="text-md">
-        {bookmark.data.title} - {formatDate(bookmark.data.publishedAt)}
-      </h1>
-      <p class="italic">{bookmark.data.description}</p>
-    </header>
-
-    <Content />
-  </main>
-</Layout>
+<!-- Content removed as the page will redirect -->

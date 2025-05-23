@@ -70,6 +70,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(function (first, secon
                   title={bookmark.data.title}
                   description={bookmark.data.description}
                   slug={bookmark.slug}
+                  contentType="bookmarks"
                 />
               ))
         }
@@ -94,6 +95,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(function (first, secon
                   title={post.data.title}
                   description={post.data.description}
                   slug={post.slug}
+                  contentType="posts"
                 />
               ))
         }

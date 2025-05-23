@@ -6,14 +6,15 @@ type Props = {
   publishedAt: Date;
   description: string;
   slug: string;
+  contentType: 'posts' | 'bookmarks';
 };
 
-const { title, publishedAt, description, slug } = Astro.props;
+const { title, publishedAt, description, slug, contentType } = Astro.props;
 ---
 
 <a
   class="group flex max-w-sm cursor-pointer flex-col gap-2 rounded-md border border-neutral-700 p-4 transition-all duration-300 hover:-translate-y-2 hover:border-neutral-400 w-full"
-  href={`/posts/${slug}`}
+  href={`/${contentType}/${slug}`}
 >
   <div
     class="flex w-full flex-col justify-between gap-2 md:flex-row md:items-center"

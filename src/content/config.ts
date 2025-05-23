@@ -17,7 +17,7 @@ const bookmarksCollection = defineCollection({
     title: z.string(),
     publishedAt: z.date(),
     description: z.string(),
-    // Add other fields if your bookmarks have them, e.g., url: z.string().url()
+    url: z.string().url(),
   }),
 });
 
