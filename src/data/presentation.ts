@@ -17,7 +17,7 @@ const presentation: Presentation = {
   title: "Hey there, I’m Stefan 👋",
   // profile: "/profile.webp",
   description:
-    "I'm a developer with 15+ years of experience building for the web. I'm currently focused on using React and TypeScript to make commerce better for everyone 💚",
+    "I’ve been building for the web for over 15 years—everything from scrappy experiments to tools used by millions around the world. These days, I’m focused on React, TypeScript, and making commerce better for everyone 💚",
   socials: [
     {
       label: "X",

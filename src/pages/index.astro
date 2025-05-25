@@ -54,6 +54,24 @@ const bookmarks = (await getCollection("bookmarks")).sort(function (first, secon
 
     <article class="flex flex-col gap-8">
       <header class="flex w-full flex-row justify-between gap-2">
+        <h3 class="text-lg text-neutral-100">
+          Things I've worked on
+        </h3>
+      </header>
+      {projects.length === 0 && <p>Oops, I must work^^^^^</p>}
+
+      <p>A selection of products, tools, and applications I've contributed to in a professional capacity — each with a clear goal and real-world impact.</p>
+
+      <section class="flex flex-col gap-4">
+        {
+          projects.length !== 0 &&
+            projects.map((project) => <ProjectCard {...project} />)
+        }
+      </section>
+    </article>
+
+    <article class="flex flex-col gap-8">
+      <header class="flex w-full flex-row justify-between gap-2">
         <h3 class="text-lg text-neutral-100">Latest bookmarks</h3>
         <Link href="/bookmarks" label="See all bookmarks" isUnderline target="_self" />
       </header>
@@ -63,7 +81,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(function (first, secon
         {
           bookmarks.length !== 0 &&
             bookmarks
-              .slice(0, 2)
+              .slice(0, 4)
               .map((bookmark) => (
                 <PostCard
                   publishedAt={bookmark.data.publishedAt}
@@ -98,22 +116,6 @@ const bookmarks = (await getCollection("bookmarks")).sort(function (first, secon
                   contentType="posts"
                 />
               ))
-        }
-      </section>
-    </article>
-
-    <article class="flex flex-col gap-8">
-      <header class="flex w-full flex-row justify-between gap-2">
-        <h3 class="text-lg text-neutral-100">
-          Current projects ({projects.length})
-        </h3>
-      </header>
-      {projects.length === 0 && <p>Oops, I must work^^^^^</p>}
-
-      <section class="flex flex-col gap-4">
-        {
-          projects.length !== 0 &&
-            projects.map((project) => <ProjectCard {...project} />)
         }
       </section>
     </article>

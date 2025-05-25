@@ -7,19 +7,24 @@ export type Project = {
 
 const projects: Project[] = [
   {
-    title: "Shopify Admin",
+    title: "Shopify: Web Admin",
     techs: ["React", "TypeScript", "Rails"],
     link: "https://shopify.com",
   },
   {
-    title: "Polaris",
+    title: "Shopify: Cart Transform Function API",
+    techs: ["TypeScript", "Rust"],
+    link: "https://shopify.dev/docs/api/functions/latest/cart-transform",
+  },
+  {
+    title: "Shopify: Polaris",
     techs: ["React", "TypeScript"],
     link: "https://polaris.shopify.com/",
   },
   {
-    title: "Shopify Functions",
-    techs: ["TypeScript", "Rust"],
-    link: "https://github.com/shopify/function-examples",
+    title: "Lenovo: LanSchool Air",
+    techs: ["TypeScript", "Angular"],
+    link: "https://lanschool.com/solutions/lanschool-air",
   },
 ];
 
