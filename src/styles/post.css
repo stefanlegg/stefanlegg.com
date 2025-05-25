@@ -6,8 +6,12 @@
   @apply rounded-sm bg-neutral-800 px-1 py-[2px] text-orange-500;
 }
 
-.post h2 {
+.post h1 {
   @apply mt-6 text-3xl text-neutral-100;
+}
+
+.post h2 {
+  @apply mt-6 text-2xl text-neutral-100;
 }
 
 .post h3 {
