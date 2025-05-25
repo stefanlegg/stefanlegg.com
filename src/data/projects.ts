@@ -5,7 +5,7 @@ export type Project = {
   techs: string[];
   link: string;
   isComingSoon?: boolean;
-  logo?: Function | string;
+  logo?: ((props: Record<string, any>) => any) | string;
 };
 
 const projects: Project[] = [
