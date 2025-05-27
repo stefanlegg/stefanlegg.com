@@ -5,23 +5,23 @@ import Layout from "@/layouts/Layout.astro";
 import formatDate from "@/utils/formatDate";
 
 export async function getStaticPaths() {
-  const bookmarks = await getCollection("bookmarks");
+	const bookmarks = await getCollection("bookmarks");
 
-  return bookmarks.map((bookmark) => ({
-    params: { slug: bookmark.slug },
-    props: { bookmark },
-  }));
+	return bookmarks.map((bookmark) => ({
+		params: { slug: bookmark.slug },
+		props: { bookmark },
+	}));
 }
 
 type Props = {
-  bookmark: CollectionEntry<"bookmarks">;
+	bookmark: CollectionEntry<"bookmarks">;
 };
 
 const { bookmark } = Astro.props;
 
 // Redirect to the bookmark's URL
 if (bookmark.data.url) {
-  return Astro.redirect(bookmark.data.url);
+	return Astro.redirect(bookmark.data.url);
 }
 
 // Fallback or error handling if URL is not present, though the task implies it will be.

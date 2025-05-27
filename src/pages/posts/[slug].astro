@@ -4,16 +4,16 @@ import Layout from "@/layouts/Layout.astro";
 import formatDate from "@/utils/formatDate";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("posts");
+	const posts = await getCollection("posts");
 
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { post },
+	}));
 }
 
 type Props = {
-  post: CollectionEntry<"posts">;
+	post: CollectionEntry<"posts">;
 };
 
 const { post } = Astro.props;

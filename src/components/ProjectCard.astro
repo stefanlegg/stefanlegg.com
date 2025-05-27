@@ -7,7 +7,7 @@ type Props = Project;
 const { title, techs, link, logo } = Astro.props;
 
 const formatTechs = (values: string[]) =>
-  values.toString().replaceAll(",", " • ");
+	values.toString().replaceAll(",", " • ");
 
 const LogoComponent = logo; // Astro components are typically capitalized
 ---

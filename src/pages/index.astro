@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { Image } from "astro:assets"
+import { Image } from "astro:assets";
 
 import Layout from "@/layouts/Layout.astro";
 import SocialLinks from "@/components/SocialLinks.astro";
@@ -13,12 +13,14 @@ import presentation from "@/data/presentation";
 import projects from "@/data/projects";
 
 const posts = (await getCollection("posts")).sort(function (first, second) {
-  return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
+	return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
 });
 
-const bookmarks = (await getCollection("bookmarks")).sort(function (first, second) {
-  return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
-});
+const bookmarks = (await getCollection("bookmarks")).sort(
+	function (first, second) {
+		return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
+	},
+);
 ---
 
 <Layout>
