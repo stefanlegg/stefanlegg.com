@@ -4,7 +4,6 @@ export type Project = {
   title: string;
   techs: string[];
   link: string;
-  isComingSoon?: boolean;
   logo?: ((props: Record<string, any>) => any) | string;
 };
 
