@@ -4,5 +4,17 @@
 		"rules": {
 			"recommended": true
 		}
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 100,
+		"formatWithErrors": false
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"files": {
+		"ignore": ["node_modules", "dist", ".astro", "bun.lock"]
 	}
 }

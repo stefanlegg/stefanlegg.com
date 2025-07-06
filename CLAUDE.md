@@ -29,16 +29,17 @@ bunx @biomejs/biome lint .
 
 # Check formatting and linting
 bunx @biomejs/biome check .
-```
 
-Note: There are typos in package.json lines 7-8 that need fixing for proper script execution.
+# Apply formatting and auto-fix
+bunx @biomejs/biome check --write .
+```
 
 ## Architecture
 
 This is an Astro-based portfolio website with the following structure:
 
 ### Content Collections
-- **Blog Posts** (`src/content/posts/`): Markdown files with frontmatter containing `title`, `publishedAt`, `description`, `isPublish`, and `isDraft`
+- **Blog Posts** (`src/content/posts/`): Markdown files with frontmatter containing `title`, `publishedAt`, `description`, and `isDraft` (defaults to false)
 - **Bookmarks** (`src/content/bookmarks/`): External links with `title`, `publishedAt`, `description`, and `url`
 - **Projects** (`src/data/projects.ts`): TypeScript array defining portfolio projects
 

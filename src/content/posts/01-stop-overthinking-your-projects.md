@@ -4,7 +4,6 @@ publishedAt: 2025-05-23
 description: "Overthinking your next side project? Here's why optimizing for the perfect idea is just another form of procrastination—and why the real value is in the doing."
 slug: "stop-overthinking-your-projects"
 tags: ["side projects", "creativity", "developer mindset", "productivity"]
-isPublish: true
 ---
 
 Sometimes I catch myself doing this thing.

@@ -4,9 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import formatDate from "@/utils/formatDate";
 
 const bookmarks = (await getCollection("bookmarks")).sort(
-	function (first, second) {
-		return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
-	},
+	(first, second) => second.data.publishedAt.getTime() - first.data.publishedAt.getTime(),
 );
 ---
 

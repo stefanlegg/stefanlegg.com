@@ -13,14 +13,14 @@ const { title, publishedAt, description, slug, contentType } = Astro.props;
 ---
 
 <a
-  class="group flex max-w-sm cursor-pointer flex-col gap-2 rounded-md border border-neutral-700 p-4 transition-all duration-300 hover:-translate-y-2 hover:border-neutral-400 w-full"
+  class="group flex cursor-pointer flex-col gap-2 rounded-md border border-neutral-700 p-4 transition-all duration-300 hover:-translate-y-2 hover:border-neutral-400 w-full min-w-0 overflow-hidden"
   href={`/${contentType}/${slug}`}
 >
   <div
-    class="flex w-full flex-col justify-between gap-2 md:flex-row md:items-center"
+    class="flex w-full flex-col justify-between gap-2 lg:flex-row lg:items-center min-w-0"
   >
-    <p class="text-neutral-100">{title}</p>
-    <div class="flex flex-row items-center gap-4">
+    <p class="text-neutral-100 break-words min-w-0">{title}</p>
+    <div class="flex flex-col items-end gap-1 flex-shrink-0 text-sm sm:flex-row sm:items-center sm:gap-2">
       <p>{formatDate(publishedAt)}</p>
 
       <svg
@@ -44,7 +44,7 @@ const { title, publishedAt, description, slug, contentType } = Astro.props;
     </div>
   </div>
 
-  <p class="truncate">
+  <p class="truncate text-sm text-neutral-400">
     {description}
   </p>
 </a>

@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "bunx --bun astro dev",
-		"start": "abunx --bun stro dev",
-		"build": "abunx --bun stro build",
+		"start": "bunx --bun astro dev",
+		"build": "bunx --bun astro build",
 		"preview": "bunx --bun astro preview",
 		"check": "bunx --bun astro check",
 		"astro": "bunx --bun astro"
@@ -21,15 +21,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@types/bun": "^1.2.13",
-		"@types/react": "^19.1.4",
-		"@types/react-dom": "^19.1.5",
-		"@typescript-eslint/parser": "^8.32.1",
-		"eslint": "^9.27.0",
-		"eslint-plugin-astro": "^1.3.1",
-		"prettier": "^3.5.3",
-		"prettier-plugin-astro": "^0.14.1",
-		"prettier-plugin-tailwindcss": "^0.6.11"
+		"@types/bun": "^1.2.13"
 	},
 	"private": true,
 	"peerDependencies": {

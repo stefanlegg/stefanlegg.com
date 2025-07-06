@@ -1,10 +1,11 @@
 import ShopifyLogo from "@/components/logos/Shopify.astro";
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
 export type Project = {
 	title: string;
 	techs: string[];
 	link: string;
-	logo?: ((props: Record<string, any>) => any) | string;
+	logo?: AstroComponentFactory | string;
 };
 
 const projects: Project[] = [
