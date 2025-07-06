@@ -1,0 +1,18 @@
+---
+import presentation from "@/data/presentation";
+import Link from "./shared/Link.astro";
+---
+
+<ul role="list" class="flex flex-row gap-2 sm:self-center">
+  {
+    presentation.socials.map((social, index) => (
+      <>
+        <li>
+          <Link href={social.link} label={social.label} />
+        </li>
+
+        {presentation.socials.length - 1 !== index && <li>/</li>}
+      </>
+    ))
+  }
+</ul>

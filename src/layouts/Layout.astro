@@ -1,0 +1,31 @@
+---
+import { ViewTransitions } from "astro:transitions";
+import SEOTags from "@/components/seo/SEOTags.astro";
+import BlurCircle from "@/components/shared/BlurCircle.astro";
+import theme from "@/data/theme";
+import type { HeadTags } from "@/utils/types/HeadTags";
+import Header from "../components/Header.astro";
+
+import "@/styles/tailwind.css";
+import "@/styles/post.css";
+
+export type Props = HeadTags;
+
+const headTags = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <SEOTags {...headTags} />
+  <body
+    class="mx-auto flex min-h-screen max-w-[872px] flex-col justify-start gap-9 px-10 py-8 text-sm text-neutral-400 md:gap-20 md:py-16"
+  >
+    <Header />
+    <BlurCircle position="top" color={theme.colors.blur.top} />
+    <BlurCircle position="bottom" color={theme.colors.blur.bottom} />
+    <main class="flex flex-col flex-grow">
+      <slot />
+    </main>
+  </body>
+  <ViewTransitions />
+</html>
