@@ -126,7 +126,7 @@ const { showHud = false, ...headTags } = Astro.props;
 
       class Satellite {
         x: number; y: number; vx: number; vy: number;
-        phase: number; angle: number;
+        phase: number; angle: number; variant: number;
         constructor(canvasW: number, canvasH: number) {
           const goRight = Math.random() > 0.5;
           this.x = goRight ? -20 : canvasW + 20;
@@ -139,6 +139,7 @@ const { showHud = false, ...headTags } = Astro.props;
           this.vy = Math.sin(dir) * speed;
           this.angle = Math.atan2(this.vy, this.vx);
           this.phase = Math.random() * Math.PI * 2;
+          this.variant = Math.random() > 0.5 ? 1 : 0;
         }
         update(dt: number, canvasW: number, canvasH: number) {
           this.x += this.vx * dt;
@@ -154,21 +155,29 @@ const { showHud = false, ...headTags } = Astro.props;
           drawCtx.save();
           drawCtx.translate(this.x, this.y);
           drawCtx.rotate(this.angle);
-          // Body (4×3 rectangle)
           drawCtx.fillStyle = col;
-          drawCtx.fillRect(-2, -1.5, 4, 3);
-          // Solar panels (lines extending from each side)
           drawCtx.strokeStyle = col;
           drawCtx.lineWidth = 1;
-          drawCtx.beginPath();
-          drawCtx.moveTo(-2, 0);
-          drawCtx.lineTo(-5, 0);
-          drawCtx.moveTo(2, 0);
-          drawCtx.lineTo(5, 0);
-          drawCtx.stroke();
-          // Panel tips (tiny squares)
-          drawCtx.fillRect(-6, -1, 2, 2);
-          drawCtx.fillRect(4, -1, 2, 2);
+          if (this.variant === 0) {
+            // Variant A: box body + panel struts + panel tips
+            drawCtx.fillRect(-2, -1.5, 4, 3);
+            drawCtx.beginPath();
+            drawCtx.moveTo(-2, 0);
+            drawCtx.lineTo(-5, 0);
+            drawCtx.moveTo(2, 0);
+            drawCtx.lineTo(5, 0);
+            drawCtx.stroke();
+            drawCtx.fillRect(-6, -1, 2, 2);
+            drawCtx.fillRect(4, -1, 2, 2);
+          } else {
+            // Variant B: H-shape (two tall panels + thin connecting strut)
+            drawCtx.fillRect(-5, -2.5, 2, 5);
+            drawCtx.fillRect(3, -2.5, 2, 5);
+            drawCtx.beginPath();
+            drawCtx.moveTo(-3, 0);
+            drawCtx.lineTo(3, 0);
+            drawCtx.stroke();
+          }
           drawCtx.restore();
         }
       }
@@ -237,7 +246,7 @@ const { showHud = false, ...headTags } = Astro.props;
       let nextShootingStarTime = 2 + Math.random() * 3;
       const satellites: Satellite[] = [];
       const debris: Debris[] = [];
-      let nextSatelliteTime = 30 + Math.random() * 30;
+      let nextSatelliteTime = 20 + Math.random() * 30;
       let lastTime = performance.now();
       let animId: number;
 
