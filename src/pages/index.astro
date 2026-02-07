@@ -13,7 +13,7 @@ const posts = (await getCollection("posts")).sort(
 );
 ---
 
-<Layout showHud>
+<Layout>
   <div class="hero">
     <div class="hero-name"><strong>Stefan</strong> Legg</div>
     <div class="hero-role">Software Engineer</div>
@@ -58,9 +58,30 @@ const posts = (await getCollection("posts")).sort(
 
   <div class="footer">
     <span>&copy; 2026 Stefan Legg</span>
-    <span>Clear Skies</span>
+    <span id="footer-clock"></span>
   </div>
 </Layout>
+
+<script>
+  function initFooterClock() {
+    const el = document.getElementById('footer-clock');
+    if (!el) return;
+    function u() {
+      const d = new Date();
+      el!.textContent =
+        String(d.getUTCHours()).padStart(2, '0') + ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+        String(d.getUTCSeconds()).padStart(2, '0') + ' UTC';
+    }
+    u();
+    const interval = setInterval(u, 1000);
+    document.addEventListener('astro:before-swap', function cleanup() {
+      clearInterval(interval);
+      document.removeEventListener('astro:before-swap', cleanup);
+    }, { once: true });
+  }
+  document.addEventListener('astro:page-load', initFooterClock);
+</script>
 
 <style>
   .hero {

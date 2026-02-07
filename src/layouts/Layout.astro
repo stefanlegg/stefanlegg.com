@@ -7,11 +7,9 @@ import Header from "../components/Header.astro";
 import "@/styles/tailwind.css";
 import "@/styles/post.css";
 
-export type Props = HeadTags & {
-	showHud?: boolean;
-};
+export type Props = HeadTags;
 
-const { showHud = false, ...headTags } = Astro.props;
+const { ...headTags } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -22,18 +20,6 @@ const { showHud = false, ...headTags } = Astro.props;
     <div class="grain" transition:persist></div>
     <div class="vignette" transition:persist></div>
     <div class="crosshair" transition:persist></div>
-
-    {showHud && (
-      <div class="hud">
-        <div class="hud-coords">
-          <span>RA 14h 29m 42.9s</span>
-          <span>DEC +38&deg; 31' 18"</span>
-        </div>
-        <div class="hud-time" id="hud-time"></div>
-        <div class="hud-status">Tracking &middot; Sidereal</div>
-        <div class="hud-mag">Mag 6.2 &middot; Bortle 3</div>
-      </div>
-    )}
 
     <div class="page">
       <Header />
@@ -327,28 +313,9 @@ const { showHud = false, ...headTags } = Astro.props;
       animId = requestAnimationFrame(draw);
     }
 
-    function initClock() {
-      const el = document.getElementById('hud-time');
-      if (!el) return;
-      function u() {
-        const d = new Date();
-        el!.textContent =
-          String(d.getUTCHours()).padStart(2, '0') + ':' +
-          String(d.getUTCMinutes()).padStart(2, '0') + ':' +
-          String(d.getUTCSeconds()).padStart(2, '0') + ' UTC';
-      }
-      u();
-      const interval = setInterval(u, 1000);
-      document.addEventListener('astro:before-swap', function cleanup() {
-        clearInterval(interval);
-        document.removeEventListener('astro:before-swap', cleanup);
-      }, { once: true });
-    }
-
     // Initialize on first load and on each client-side navigation
     document.addEventListener('astro:page-load', () => {
       initStars();
-      initClock();
     });
   </script>
 </html>
@@ -383,34 +350,6 @@ const { showHud = false, ...headTags } = Astro.props;
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* HUD overlay */
-  .hud {
-    position: fixed; inset: 0; z-index: 9992;
-    pointer-events: none; font-family: var(--font-mono);
-  }
-  .hud-coords {
-    position: absolute; top: 20px; left: 24px;
-    font-size: 12px; font-weight: 400; letter-spacing: 1px;
-    color: var(--text-label);
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .hud-time {
-    position: absolute; top: 20px; right: 24px;
-    font-size: 13px; font-weight: 400; letter-spacing: 2px;
-    color: var(--accent);
-    text-shadow: 0 0 8px var(--accent-glow);
-  }
-  .hud-status {
-    position: absolute; bottom: 20px; left: 24px;
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .hud-mag {
-    position: absolute; bottom: 20px; right: 24px;
-    font-size: 11px; letter-spacing: 2px;
-    color: var(--text-label);
-  }
-
   /* Crosshair */
   .crosshair {
     position: fixed; top: 50%; left: 50%;
@@ -432,10 +371,6 @@ const { showHud = false, ...headTags } = Astro.props;
 
   @media (max-width: 600px) {
     .page { padding: 0 20px; }
-    .hud-coords { font-size: 8px; top: 12px; left: 14px; }
-    .hud-time { top: 12px; right: 14px; font-size: 9px; }
-    .hud-status { bottom: 12px; left: 14px; }
-    .hud-mag { bottom: 12px; right: 14px; }
     .crosshair { display: none; }
   }
 </style>
