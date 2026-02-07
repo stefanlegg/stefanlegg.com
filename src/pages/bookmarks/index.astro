@@ -48,7 +48,11 @@ const bookmarks = (await getCollection("bookmarks")).sort(
   .bookmark-row {
     display: block; text-decoration: none; color: inherit;
     padding: 24px 0; border-top: 1px solid var(--text-rule);
-    transition: all 0.3s;
+    transition: all 0.3s; position: relative;
+  }
+  .bookmark-row::after {
+    content: ''; position: absolute;
+    top: 0; bottom: 0; left: -12px; width: 12px;
   }
   .bookmark-row:hover {
     transform: translateX(12px);
