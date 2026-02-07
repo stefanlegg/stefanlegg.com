@@ -51,7 +51,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(
     transition: all 0.3s;
   }
   .bookmark-row:hover {
-    padding-left: 12px;
+    transform: translateX(12px);
     background: linear-gradient(90deg, var(--accent-glow), transparent 60%);
   }
   .bookmark-row-header {
