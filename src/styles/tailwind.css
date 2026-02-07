@@ -3,34 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-body: 'Crimson Pro', Georgia, serif;
-  --bg: #08090e;
-  --text: #d0d8ea;
-  --text-strong: rgba(208, 216, 234, 0.92);
-  --text-body: rgba(208, 216, 234, 0.82);
-  --text-label: rgba(208, 216, 234, 0.68);
-  --text-muted: rgba(208, 216, 234, 0.58);
-  --text-faint: rgba(208, 216, 234, 0.22);
-  --text-rule: rgba(208, 216, 234, 0.10);
-  --accent: #a080c4;
-  --accent-glow: rgba(160, 128, 196, 0.15);
-  --accent-bright: #bb9add;
+	--font-mono: "JetBrains Mono", monospace;
+	--font-body: "Crimson Pro", Georgia, serif;
+	--bg: #08090e;
+	--text: #d0d8ea;
+	--text-strong: rgba(208, 216, 234, 0.92);
+	--text-body: rgba(208, 216, 234, 0.82);
+	--text-label: rgba(208, 216, 234, 0.68);
+	--text-muted: rgba(208, 216, 234, 0.58);
+	--text-faint: rgba(208, 216, 234, 0.22);
+	--text-rule: rgba(208, 216, 234, 0.1);
+	--accent: #a080c4;
+	--accent-glow: rgba(160, 128, 196, 0.15);
+	--accent-bright: #bb9add;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
 html {
-  background: var(--bg);
+	background: var(--bg);
 }
 
 body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 20px;
-  line-height: 1.8;
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+	font-family: var(--font-body);
+	background: var(--bg);
+	color: var(--text);
+	font-size: 20px;
+	line-height: 1.8;
+	min-height: 100vh;
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
 }

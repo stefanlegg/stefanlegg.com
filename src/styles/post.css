@@ -63,7 +63,7 @@
 }
 
 .post blockquote::before {
-	content: '';
+	content: "";
 	display: block;
 	height: auto;
 	width: 1px;

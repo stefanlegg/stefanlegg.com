@@ -2,13 +2,12 @@
 import type { Project } from "@/data/projects";
 
 type Props = Project & {
-  index: number;
+	index: number;
 };
 
 const { title, techs, link, index } = Astro.props;
 
-const formatTechs = (values: string[]) =>
-	values.toString().replaceAll(",", " / ");
+const formatTechs = (values: string[]) => values.toString().replaceAll(",", " / ");
 
 const num = String(index + 1).padStart(2, "0");
 ---
