@@ -2,8 +2,6 @@
 
 A modern, fast portfolio website built with Astro, TypeScript, and Tailwind CSS.
 
-Based on the [original theme/template](https://github.com/MaeWolff/astro-portfolio-template) designed by [Maxence Wolff](https://www.maxencewolff.com).
-
 ## 🛠️ Tech Stack
 
 - **Framework**: [Astro](https://astro.build) v5.7
