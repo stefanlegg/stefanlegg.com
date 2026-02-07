@@ -64,14 +64,6 @@ All content and data can be found in two main locations:
 - **Content** (`src/content/`): Markdown for blog posts and bookmarks
 - **Data** (`src/data/`): Site configuration, projects, and personal information
 
-## 🎨 Customization
-
-- Modify site information in `src/data/` folder:
-  - `config.ts` - Site URL
-  - `presentation.ts` - Personal info and social links
-  - `projects.ts` - Portfolio projects
-  - `theme.ts` - Theme configuration
-
 ## 📄 License
 
 This project is licensed under the MIT License.
