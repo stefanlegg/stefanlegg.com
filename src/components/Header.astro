@@ -1,49 +1,41 @@
 ---
-import SocialLinks from "@/components/SocialLinks.astro";
-import presentation from "@/data/presentation";
 import removeTrailingSlash from "@/utils/removeTrailingSlash";
 
 const pathname = removeTrailingSlash(Astro.url.pathname);
 ---
 
-<header class="z-40 flex w-full flex-col gap-2 md:flex-row md:justify-between">
-  <!-- <a href={`mailto:${presentation.mail}`} class="hover:text-neutral-100"
-    >{presentation.mail}</a
-  > -->
+<nav class="nav">
+  <a href="/" class:list={["nav-name", { active: pathname === "/" }]}>Stefan Legg</a>
+  <div class="nav-links">
+    <a href="/" class:list={["nav-link", { active: pathname === "/" }]}>Home</a>
+    <a href="/posts" class:list={["nav-link", { active: pathname.startsWith("/posts") }]}>Posts</a>
+    <a href="/bookmarks" class:list={["nav-link", { active: pathname.startsWith("/bookmarks") }]}>Bookmarks</a>
+  </div>
+</nav>
 
-  <nav role="navigation" class="sm:self-center">
-    <ul role="list" class="flex flex-row gap-2">
-      <li>
-        <a
-          href="/"
-          class:list={{
-            ["hover:text-neutral-100"]: true,
-            ["text-neutral-100"]: pathname === "/",
-          }}>Home</a
-        >
-      </li>
-      <li>/</li>
-      <li>
-        <a
-          href="/bookmarks"
-          class:list={{
-            ["hover:text-neutral-100"]: true,
-            ["text-neutral-100"]: pathname === "/bookmarks",
-          }}>Bookmarks</a
-        >
-      </li>
-      <li>/</li>
-      <li>
-        <a
-          href="/posts"
-          class:list={{
-            ["hover:text-neutral-100"]: true,
-            ["text-neutral-100"]: pathname === "/posts",
-          }}>Posts</a
-        >
-      </li>
-    </ul>
-  </nav>
+<style>
+  .nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 64px 0 20px;
+    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
+  }
+  .nav-name {
+    font-family: var(--font-mono); font-size: 17px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text-body); text-decoration: none; transition: color 0.3s;
+  }
+  .nav-name:hover { color: var(--accent-bright); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-link {
+    font-family: var(--font-mono); font-size: 14px; font-weight: 400;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-label); text-decoration: none; transition: color 0.3s;
+  }
+  .nav-link:hover { color: var(--text); }
+  .nav-link.active { color: var(--text); }
 
-  <SocialLinks />
-</header>
+  @media (max-width: 600px) {
+    .nav { padding-top: 48px; }
+    .nav-links { gap: 14px; }
+  }
+</style>

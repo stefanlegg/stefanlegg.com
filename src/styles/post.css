@@ -1,43 +1,91 @@
 .post p {
-	@apply leading-7;
-}
-
-.post code {
-	@apply rounded-sm bg-neutral-800 px-1 py-[2px] text-orange-500;
+	line-height: 1.85;
+	color: var(--text-body);
+	margin-bottom: 1em;
 }
 
 .post h1 {
-	@apply mt-6 text-3xl text-neutral-100;
+	margin-top: 1.5em;
+	font-size: 1.875rem;
+	color: var(--text);
 }
 
 .post h2 {
-	@apply mt-6 text-2xl text-neutral-100;
+	margin-top: 1.5em;
+	font-size: 1.5rem;
+	color: var(--text);
 }
 
 .post h3 {
-	@apply mt-4 text-xl text-neutral-100;
+	margin-top: 1em;
+	font-size: 1.25rem;
+	color: var(--text);
 }
 
 .post code {
-	@apply rounded-sm bg-neutral-800 px-1 py-[2px] text-red-500;
+	border-radius: 2px;
+	background: rgba(160, 128, 196, 0.12);
+	padding: 1px 4px;
+	color: var(--accent-bright);
+	font-family: var(--font-mono);
+	font-size: 0.9em;
 }
 
 .post a {
-	@apply text-neutral-100 underline;
+	color: var(--text);
+	text-decoration: underline;
+	text-decoration-color: var(--accent);
+	text-underline-offset: 3px;
+	transition: color 0.3s;
+}
+
+.post a:hover {
+	color: var(--accent-bright);
 }
 
 .post ul {
-	@apply list-disc;
+	list-style-type: disc;
+	padding-left: 1.5em;
+	color: var(--text-body);
+}
+
+.post ol {
+	padding-left: 1.5em;
+	color: var(--text-body);
 }
 
 .post blockquote {
-	@apply flex flex-row gap-2 before:block before:h-auto before:w-1 before:max-w-[1px] before:bg-red-400 before:content-[''];
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.post blockquote::before {
+	content: '';
+	display: block;
+	height: auto;
+	width: 1px;
+	min-width: 1px;
+	background: var(--accent);
 }
 
 .post pre {
-	@apply p-4;
+	padding: 1rem;
+	border-radius: 4px;
+	background: rgba(208, 216, 234, 0.05);
+	overflow-x: auto;
+	margin: 1em 0;
 }
 
 .post pre > code {
-	@apply bg-transparent;
+	background: transparent;
+	padding: 0;
+	color: var(--text-body);
+}
+
+.post strong {
+	color: var(--text-strong);
+	font-weight: 600;
 }
