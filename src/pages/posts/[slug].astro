@@ -21,15 +21,34 @@ const { Content } = await post.render();
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
-  <main class="post mx-auto flex w-full max-w-prose flex-col gap-4">
-    <header role="presentation">
-      <h1>
-        {post.data.title}
-      </h1>
-      <span class="text-md">{formatDate(post.data.publishedAt)}</span>
-      <!-- <p class="italic">{post.data.description}</p> -->
+  <article class="post-article">
+    <header class="post-header">
+      <h1 class="post-title">{post.data.title}</h1>
+      <span class="post-date">{formatDate(post.data.publishedAt)}</span>
     </header>
-
-    <Content />
-  </main>
+    <div class="post">
+      <Content />
+    </div>
+  </article>
 </Layout>
+
+<style>
+  .post-article {
+    max-width: 840px; margin: 0 auto;
+    padding: 56px 0 80px;
+    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
+  }
+  .post-header {
+    margin-bottom: 48px;
+  }
+  .post-title {
+    font-family: var(--font-body);
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 400; line-height: 1.2;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .post-date {
+    font-family: var(--font-mono); font-size: 14px;
+    letter-spacing: 2px; color: var(--text-label);
+  }
+</style>

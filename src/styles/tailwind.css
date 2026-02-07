@@ -2,29 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-	background-image: radial-gradient(circle at center, #0000, Canvas),
-		radial-gradient(circle at 1px 1px, light-dark(#0007, #fff4) 1px, #0000 0);
-	background-size: 200px 200px, 40px 40px;
-	background-repeat: round, space;
+:root {
+	--font-mono: "JetBrains Mono", monospace;
+	--font-body: "Crimson Pro", Georgia, serif;
+	--bg: #08090e;
+	--text: #d0d8ea;
+	--text-strong: rgba(208, 216, 234, 0.92);
+	--text-body: rgba(208, 216, 234, 0.82);
+	--text-label: rgba(208, 216, 234, 0.68);
+	--text-muted: rgba(208, 216, 234, 0.58);
+	--text-faint: rgba(208, 216, 234, 0.22);
+	--text-rule: rgba(208, 216, 234, 0.1);
+	--accent: #a080c4;
+	--accent-glow: rgba(160, 128, 196, 0.15);
+	--accent-bright: #bb9add;
 }
 
-@layer support {
-	* {
-		box-sizing: border-box;
-		margin: 0;
-	}
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
-	html {
-		block-size: 100%;
-		color-scheme: dark light;
-	}
+html {
+	background: var(--bg);
+}
 
-	body {
-		min-block-size: 100%;
-		font-family: system-ui, sans-serif;
-
-		display: grid;
-		place-content: center;
-	}
+body {
+	font-family: var(--font-body);
+	background: var(--bg);
+	color: var(--text);
+	font-size: 20px;
+	line-height: 1.8;
+	min-height: 100vh;
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
 }

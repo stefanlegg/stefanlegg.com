@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#08090e"/>
+  <g transform="translate(16,16) rotate(35)">
+    <!-- solar panels -->
+    <rect x="-12" y="-3.5" width="6" height="7" rx="0.5" fill="#bb9add"/>
+    <rect x="6" y="-3.5" width="6" height="7" rx="0.5" fill="#bb9add"/>
+    <!-- struts -->
+    <line x1="-6" y1="0" x2="-4" y2="0" stroke="#bb9add" stroke-width="1.2"/>
+    <line x1="4" y1="0" x2="6" y2="0" stroke="#bb9add" stroke-width="1.2"/>
+    <!-- body -->
+    <rect x="-4" y="-3" width="8" height="6" rx="1" fill="#d0d8ea"/>
+    <!-- antenna -->
+    <line x1="0" y1="-3" x2="0" y2="-6" stroke="#d0d8ea" stroke-width="0.8"/>
+    <circle cx="0" cy="-6.5" r="1" fill="#bb9add"/>
+  </g>
+</svg>

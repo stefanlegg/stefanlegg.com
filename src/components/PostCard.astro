@@ -12,39 +12,35 @@ type Props = {
 const { title, publishedAt, description, slug, contentType } = Astro.props;
 ---
 
-<a
-  class="group flex cursor-pointer flex-col gap-2 rounded-md border border-neutral-700 p-4 transition-all duration-300 hover:-translate-y-2 hover:border-neutral-400 w-full min-w-0 overflow-hidden"
-  href={`/${contentType}/${slug}`}
->
-  <div
-    class="flex w-full flex-row justify-between items-center gap-2 min-w-0"
-  >
-    <p class="text-neutral-100 break-words min-w-0">{title}</p>
-    <div class="flex flex-col items-end gap-1 flex-shrink-0 text-sm sm:flex-row sm:items-center sm:gap-2">
-      <p class="hidden md:block">{formatDate(publishedAt)}</p>
-
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        fill="none"
-        class="transition-all duration-300 group-hover:translate-x-1"
-      >
-        <path
-          d="M5.25 12.75L12.75 5.25"
-          stroke="#999999"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-        <path
-          d="M5.25 5.25H12.75V12.75"
-          stroke="#999999"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-      </svg>
-    </div>
-  </div>
-
-  <p class="truncate text-sm text-neutral-400">
-    {description}
-  </p>
+<a class="post-card" href={`/${contentType}/${slug}`}>
+  <div class="post-title">{title}</div>
+  <div class="post-date">{formatDate(publishedAt)}</div>
+  <div class="post-desc">{description}</div>
 </a>
+
+<style>
+  .post-card {
+    display: block; text-decoration: none; color: inherit;
+    padding: 20px; margin: 0 -20px;
+    border: 1px solid var(--text-rule); transition: all 0.3s;
+  }
+  .post-card:hover {
+    border-color: var(--text-faint); background: var(--text-rule);
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  .post-title {
+    font-size: 28px; font-weight: 500; color: var(--text);
+    line-height: 1.3; margin-bottom: 10px;
+  }
+  .post-date {
+    font-family: var(--font-mono); font-size: 14px;
+    letter-spacing: 2px; color: var(--text-label); margin-bottom: 14px;
+  }
+  .post-desc {
+    font-size: 22px; font-weight: 300; line-height: 1.8; color: var(--text-body);
+  }
+
+  @media (max-width: 600px) {
+    .post-card { margin: 0 -12px; padding: 16px 12px; }
+  }
+</style>

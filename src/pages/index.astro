@@ -1,139 +1,145 @@
 ---
 import { getCollection } from "astro:content";
-import { Image } from "astro:assets";
 
-import Layout from "@/layouts/Layout.astro";
-import SocialLinks from "@/components/SocialLinks.astro";
 import PostCard from "@/components/PostCard.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
-import Link from "@/components/shared/Link.astro";
-import convertAsteriskToStrongTag from "@/utils/convertAsteriskToStrongTag";
+import SocialLinks from "@/components/SocialLinks.astro";
+import Layout from "@/layouts/Layout.astro";
 
-import presentation from "@/data/presentation";
 import projects from "@/data/projects";
 
-const posts = (await getCollection("posts")).sort(function (first, second) {
-	return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
-});
-
-const bookmarks = (await getCollection("bookmarks")).sort(
-	function (first, second) {
-		return second.data.publishedAt.getTime() - first.data.publishedAt.getTime();
-	},
+const posts = (await getCollection("posts")).sort(
+	(first, second) => second.data.publishedAt.getTime() - first.data.publishedAt.getTime(),
 );
 ---
 
 <Layout>
-  <main class="flex flex-col gap-20">
-    <article
-      class="flex flex-col gap-8 md:flex-row-reverse md:justify-end md:gap-12"
-    >
-      {
-        presentation.profile && (
-          <Image
-            src={presentation.profile}
-            class="w-1/4 self-center rounded-full"
-            alt="Your Profile"
-            width="200"
-            height="200"
-          />
-        )
-      }
+  <div class="hero">
+    <div class="hero-name"><strong>Stefan</strong> Legg</div>
+    <div class="hero-role">Software Engineer</div>
+    <div class="hero-sub">15+ years building for the web &mdash; currently at Shopify</div>
+  </div>
 
-      <div class="flex flex-col gap-8">
-        <h1 class="text-3xl text-neutral-100">
-          {presentation.title}
-        </h1>
+  <div class="section" style="animation-delay: 0.5s;">
+    <div class="section-label">About</div>
+    <div class="section-text">
+      I've been building for the web for <strong>over 15 years</strong> — everything from scrappy experiments to tools used by <strong>millions around the world</strong>. These days, I'm focused on React, TypeScript, and making commerce better for everyone.
+    </div>
+  </div>
 
-        <h2
-          class="w-auto max-w-[60ch] leading-6"
-          set:html={convertAsteriskToStrongTag(presentation.description)}
+  <div class="section" style="animation-delay: 0.6s;">
+    <div class="section-label">Work</div>
+    <div class="project-list">
+      {projects.map((project, index) => (
+        <ProjectCard {...project} index={index} />
+      ))}
+    </div>
+  </div>
+
+  {posts.length > 0 && (
+    <div class="section" style="animation-delay: 0.75s;">
+      <div class="section-label">Writing</div>
+      {posts.slice(0, 1).map((post) => (
+        <PostCard
+          publishedAt={post.data.publishedAt}
+          title={post.data.title}
+          description={post.data.description}
+          slug={post.slug}
+          contentType="posts"
         />
+      ))}
+    </div>
+  )}
 
-        <!-- <SocialLinks /> -->
-      </div>
-    </article>
+  <div class="section" style="animation-delay: 0.85s;">
+    <div class="section-label">Connect</div>
+    <SocialLinks />
+  </div>
 
-    <article class="flex flex-col gap-8">
-      <header class="flex w-full flex-row justify-between gap-2">
-        <h3 class="text-lg text-neutral-100">
-          Things I've worked on
-        </h3>
-      </header>
-      {projects.length === 0 && <p>Oops, I must work^^^^^</p>}
-
-      <p>A selection of products, tools, and applications I've contributed to in a professional capacity — each with a clear goal and real-world impact.</p>
-
-      <section class="flex flex-col gap-4">
-        {
-          projects.length !== 0 &&
-            projects.map((project) => <ProjectCard {...project} />)
-        }
-      </section>
-    </article>
-
-    <article class="flex flex-col gap-8">
-      <header class="flex w-full flex-row justify-between gap-2">
-        <h3 class="text-lg text-neutral-100">Latest bookmarks</h3>
-        <Link href="/bookmarks" label="See all bookmarks" isUnderline target="_self" />
-      </header>
-      {bookmarks.length === 0 && <p>Soon, stay connected 👀...</p>}
-
-      <section class="grid gap-4 md:grid-cols-2">
-        {
-          bookmarks.length !== 0 &&
-            bookmarks
-              .slice(0, 4)
-              .map((bookmark) => (
-                <PostCard
-                  publishedAt={bookmark.data.publishedAt}
-                  title={bookmark.data.title}
-                  description={bookmark.data.description}
-                  slug={bookmark.slug}
-                  contentType="bookmarks"
-                />
-              ))
-        }
-      </section>
-    </article>
-
-    <article class="flex flex-col gap-8">
-      <header class="flex w-full flex-row justify-between gap-2">
-        <h3 class="text-lg text-neutral-100">Latest posts</h3>
-        <Link href="/posts" label="See all posts" isUnderline target="_self" />
-      </header>
-      {posts.length === 0 && <p>Soon, stay connected 👀...</p>}
-
-      <section class="grid gap-4 md:grid-cols-2">
-        {
-          posts.length !== 0 &&
-            posts
-              .slice(0, 2)
-              .map((post) => (
-                <PostCard
-                  publishedAt={post.data.publishedAt}
-                  title={post.data.title}
-                  description={post.data.description}
-                  slug={post.slug}
-                  contentType="posts"
-                />
-              ))
-        }
-      </section>
-    </article>
-
-    <!-- <article class="flex flex-col gap-8">
-      <header class="flex w-full flex-row justify-between gap-2">
-        <h3 class="text-lg text-neutral-100">Get in touch</h3>
-      </header>
-      <p>
-        Email me at <Link
-          href={`mailto:${presentation.mail}`}
-          label={presentation.mail}
-        /> or follow me via my social links.
-      </p>
-
-      <SocialLinks />
-    </article> -->
-  </main>
+  <div class="footer">
+    <span>&copy; 2026 Stefan Legg</span>
+    <span id="footer-clock"></span>
+  </div>
 </Layout>
+
+<script>
+  function initFooterClock() {
+    const el = document.getElementById('footer-clock');
+    if (!el) return;
+    function u() {
+      const d = new Date();
+      el!.textContent =
+        String(d.getUTCHours()).padStart(2, '0') + ':' +
+        String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+        String(d.getUTCSeconds()).padStart(2, '0') + ' UTC';
+    }
+    u();
+    const interval = setInterval(u, 1000);
+    document.addEventListener('astro:before-swap', function cleanup() {
+      clearInterval(interval);
+      document.removeEventListener('astro:before-swap', cleanup);
+    }, { once: true });
+  }
+  document.addEventListener('astro:page-load', initFooterClock);
+</script>
+
+<style>
+  .hero {
+    padding: 56px 0 48px;
+    opacity: 0; animation: fade-up 1s ease 0.4s forwards;
+  }
+  .hero-name {
+    font-family: var(--font-body);
+    font-size: clamp(48px, 12vw, 76px);
+    font-weight: 200; line-height: 1.0;
+    color: var(--text); letter-spacing: -0.5px;
+    text-shadow: 0 0 40px rgba(160, 128, 196, 0.18);
+  }
+  .hero-name :global(strong) { font-weight: 600; }
+  .hero-role {
+    font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--accent); margin-top: 18px;
+    text-shadow: 0 0 12px var(--accent-glow);
+  }
+  .hero-sub {
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--text-label); margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  .section {
+    padding: 48px 0;
+    opacity: 0; animation: fade-up 0.8s ease forwards;
+  }
+  .section-label {
+    font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--text-label); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--text-rule);
+  }
+  .section-text {
+    font-size: 24px; font-weight: 300; line-height: 1.85;
+    color: var(--text-body);
+  }
+  .section-text :global(strong) { color: var(--text-strong); font-weight: 500; }
+
+  .project-list { display: flex; flex-direction: column; }
+
+  .footer {
+    padding: 28px 0 40px;
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 400;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted);
+    opacity: 0; animation: fade-up 0.5s ease 1.0s forwards;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 0 36px; }
+    .hero-name { font-size: 36px; }
+    .footer { flex-direction: column; gap: 6px; text-align: center; }
+  }
+</style>

@@ -8,48 +8,72 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 );
 ---
 
-<Layout title="Template - All Posts">
-  <main class="flex flex-col justify-start gap-20">
-    <h1 class="text-2xl text-neutral-100">Bookmarks</h1>
+<Layout title="Bookmarks — Stefan Legg">
+  <div class="page-header">
+    <h1 class="page-title">Bookmarks</h1>
+  </div>
 
-    <article class="flex flex-col gap-4">
-      {
-        bookmarks.map((bookmark) => (
-          <a
-            class="group flex flex-col gap-2 border-t border-neutral-700 py-4 transition-all hover:text-neutral-100"
-            href={`/bookmarks/${bookmark.slug}`}
-          >
-            <div class="flex w-full items-center justify-between">
-              <h2 class="text-lg">{bookmark.data.title}</h2>
-
-              <div class="flex flex-row items-center gap-4">
-                <p>{formatDate(bookmark.data.publishedAt)}</p>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  class="transition-all duration-300 group-hover:translate-x-1"
-                >
-                  <path
-                    d="M5.25 12.75L12.75 5.25"
-                    stroke="#999999"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M5.25 5.25H12.75V12.75"
-                    stroke="#999999"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-            <p>{bookmark.data.description}</p>
-          </a>
-        ))
-      }
-    </article>
-  </main>
+  <div class="bookmark-list">
+    {bookmarks.map((bookmark) => (
+      <a class="bookmark-row" href={`/bookmarks/${bookmark.slug}`}>
+        <div class="bookmark-row-header">
+          <h2 class="bookmark-row-title">{bookmark.data.title}</h2>
+          <span class="bookmark-row-date">{formatDate(bookmark.data.publishedAt)}</span>
+        </div>
+        <p class="bookmark-row-desc">{bookmark.data.description}</p>
+      </a>
+    ))}
+  </div>
 </Layout>
+
+<style>
+  .page-header {
+    padding: 56px 0 24px;
+    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
+  }
+  .page-title {
+    font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--text-label);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .page-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--text-rule);
+  }
+
+  .bookmark-list {
+    display: flex; flex-direction: column;
+    opacity: 0; animation: fade-up 0.8s ease 0.5s forwards;
+  }
+  .bookmark-row {
+    display: block; text-decoration: none; color: inherit;
+    padding: 24px 0; border-top: 1px solid var(--text-rule);
+    transition: all 0.3s; position: relative;
+  }
+  .bookmark-row::after {
+    content: ''; position: absolute;
+    top: 0; bottom: 0; left: -12px; width: 12px;
+  }
+  .bookmark-row:hover {
+    transform: translateX(12px);
+    background: linear-gradient(90deg, var(--accent-glow), transparent 60%);
+  }
+  .bookmark-row-header {
+    display: flex; justify-content: space-between;
+    align-items: baseline; gap: 16px; margin-bottom: 8px;
+  }
+  .bookmark-row-title {
+    font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.3;
+  }
+  .bookmark-row-date {
+    font-family: var(--font-mono); font-size: 14px;
+    letter-spacing: 2px; color: var(--text-label); flex-shrink: 0;
+  }
+  .bookmark-row-desc {
+    font-size: 20px; font-weight: 300; line-height: 1.7; color: var(--text-body);
+  }
+
+  @media (max-width: 600px) {
+    .bookmark-row-header { flex-direction: column; gap: 4px; }
+  }
+</style>

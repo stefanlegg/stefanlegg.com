@@ -12,8 +12,8 @@ const { label, isUnderline, ...props } = Astro.props;
 <a
   href={props.href}
   class:list={{
-    ["hover:text-neutral-100 cursor-pointer"]: true,
-    ["underline decoration-dashed underline-offset-8"]: isUnderline,
+    ["link"]: true,
+    ["link-underline"]: isUnderline,
   }}
   {...props}
   rel="noreferrer"
@@ -22,3 +22,19 @@ const { label, isUnderline, ...props } = Astro.props;
   {label}
   <span class="sr-only">{label} link</span>
 </a>
+
+<style>
+  .link {
+    color: var(--text-body); cursor: pointer; transition: color 0.3s;
+  }
+  .link:hover { color: var(--accent-bright); }
+  .link-underline {
+    text-decoration: underline; text-decoration-style: dashed;
+    text-underline-offset: 8px;
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+  }
+</style>

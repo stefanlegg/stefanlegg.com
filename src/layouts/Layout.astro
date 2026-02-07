@@ -1,8 +1,6 @@
 ---
 import { ViewTransitions } from "astro:transitions";
 import SEOTags from "@/components/seo/SEOTags.astro";
-import BlurCircle from "@/components/shared/BlurCircle.astro";
-import theme from "@/data/theme";
 import type { HeadTags } from "@/utils/types/HeadTags";
 import Header from "../components/Header.astro";
 
@@ -11,21 +9,368 @@ import "@/styles/post.css";
 
 export type Props = HeadTags;
 
-const headTags = Astro.props;
+const { ...headTags } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="en">
   <SEOTags {...headTags} />
-  <body
-    class="mx-auto flex min-h-screen max-w-[872px] flex-col justify-start gap-9 px-10 py-8 text-sm text-neutral-400 md:gap-20 md:py-16"
-  >
-    <Header />
-    <BlurCircle position="top" color={theme.colors.blur.top} />
-    <BlurCircle position="bottom" color={theme.colors.blur.bottom} />
-    <main class="flex flex-col flex-grow">
-      <slot />
-    </main>
+  <body>
+    <canvas class="stars" id="stars" transition:persist></canvas>
+    <div class="grain" transition:persist></div>
+    <div class="vignette" transition:persist></div>
+    <div class="crosshair" transition:persist></div>
+
+    <div class="page">
+      <Header />
+      <main>
+        <slot />
+      </main>
+    </div>
   </body>
   <ViewTransitions />
+
+  <script>
+    let starsInitialized = false;
+
+    function initStars() {
+      if (starsInitialized) return;
+      starsInitialized = true;
+      const c = document.getElementById('stars') as HTMLCanvasElement;
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      if (!ctx) return;
+      let w: number, h: number;
+
+      function resize() {
+        w = c.width = window.innerWidth;
+        h = c.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      let mouseX = 0.5;
+      let mouseY = 0.5;
+      document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX / window.innerWidth;
+        mouseY = e.clientY / window.innerHeight;
+      });
+
+      const stars: { x: number; y: number; r: number; a: number; baseA: number; s: number; phase: number }[] = [];
+      for (let i = 0; i < 250; i++) {
+        stars.push({
+          x: Math.random() * 2000,
+          y: Math.random() * 2000,
+          r: Math.random() * 1.2 + 0.3,
+          a: Math.random() * 0.6 + 0.2,
+          baseA: Math.random() * 0.6 + 0.2,
+          s: Math.random() * 0.004 + 0.001,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      class ShootingStar {
+        x: number; y: number; vx: number; vy: number;
+        life: number; maxLife: number; length: number; brightness: number;
+        constructor(canvasW: number, canvasH: number) {
+          this.x = Math.random() * canvasW;
+          this.y = Math.random() * canvasH * 0.3;
+          const angle = Math.PI * 0.2 + Math.random() * Math.PI * 0.3;
+          const speed = 400 + Math.random() * 300;
+          this.vx = Math.cos(angle) * speed;
+          this.vy = Math.sin(angle) * speed;
+          this.life = 0;
+          this.maxLife = 0.5 + Math.random() * 0.5;
+          this.length = 60 + Math.random() * 80;
+          this.brightness = 0.6 + Math.random() * 0.4;
+        }
+        update(dt: number) {
+          this.x += this.vx * dt;
+          this.y += this.vy * dt;
+          this.life += dt;
+          return this.life < this.maxLife;
+        }
+        draw(drawCtx: CanvasRenderingContext2D) {
+          const progress = this.life / this.maxLife;
+          const alpha = this.brightness * (1 - progress * progress);
+          if (alpha <= 0) return;
+          const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+          const tailX = this.x - (this.vx * this.length / speed) * 0.15;
+          const tailY = this.y - (this.vy * this.length / speed) * 0.15;
+          const grad = drawCtx.createLinearGradient(tailX, tailY, this.x, this.y);
+          grad.addColorStop(0, 'rgba(200,210,240,0)');
+          grad.addColorStop(0.7, 'rgba(200,210,240,' + (alpha * 0.5) + ')');
+          grad.addColorStop(1, 'rgba(220,230,255,' + alpha + ')');
+          drawCtx.strokeStyle = grad;
+          drawCtx.lineWidth = 1.5;
+          drawCtx.beginPath();
+          drawCtx.moveTo(tailX, tailY);
+          drawCtx.lineTo(this.x, this.y);
+          drawCtx.stroke();
+          drawCtx.beginPath();
+          drawCtx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+          drawCtx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+          drawCtx.fill();
+        }
+      }
+
+      class Satellite {
+        x: number; y: number; vx: number; vy: number;
+        phase: number; angle: number; variant: number;
+        constructor(canvasW: number, canvasH: number) {
+          const goRight = Math.random() > 0.5;
+          this.x = goRight ? -20 : canvasW + 20;
+          this.y = Math.random() * canvasH * 0.5;
+          const dir = goRight
+            ? -0.1 + Math.random() * 0.2
+            : Math.PI - 0.1 + Math.random() * 0.2;
+          const speed = 40 + Math.random() * 40;
+          this.vx = Math.cos(dir) * speed;
+          this.vy = Math.sin(dir) * speed;
+          this.angle = Math.atan2(this.vy, this.vx);
+          this.phase = Math.random() * Math.PI * 2;
+          this.variant = Math.random() > 0.5 ? 1 : 0;
+        }
+        update(dt: number, canvasW: number, canvasH: number) {
+          this.x += this.vx * dt;
+          this.y += this.vy * dt;
+          const margin = 40;
+          return this.x > -margin && this.x < canvasW + margin &&
+                 this.y > -margin && this.y < canvasH + margin;
+        }
+        draw(drawCtx: CanvasRenderingContext2D, now: number) {
+          const pulse = 0.5 + 0.5 * Math.sin(now * 0.002 + this.phase);
+          const alpha = 0.4 + pulse * 0.5;
+          const col = 'rgba(235,225,210,' + alpha + ')';
+          drawCtx.save();
+          drawCtx.translate(this.x, this.y);
+          drawCtx.rotate(this.angle);
+          drawCtx.fillStyle = col;
+          drawCtx.strokeStyle = col;
+          drawCtx.lineWidth = 1;
+          if (this.variant === 0) {
+            // Variant A: box body + panel struts + panel tips
+            drawCtx.fillRect(-2, -1.5, 4, 3);
+            drawCtx.beginPath();
+            drawCtx.moveTo(-2, 0);
+            drawCtx.lineTo(-5, 0);
+            drawCtx.moveTo(2, 0);
+            drawCtx.lineTo(5, 0);
+            drawCtx.stroke();
+            drawCtx.fillRect(-6, -1, 2, 2);
+            drawCtx.fillRect(4, -1, 2, 2);
+          } else {
+            // Variant B: H-shape (two tall panels + thin connecting strut)
+            drawCtx.fillRect(-5, -2.5, 2, 5);
+            drawCtx.fillRect(3, -2.5, 2, 5);
+            drawCtx.beginPath();
+            drawCtx.moveTo(-3, 0);
+            drawCtx.lineTo(3, 0);
+            drawCtx.stroke();
+          }
+          drawCtx.restore();
+        }
+      }
+
+      class Debris {
+        x: number; y: number;
+        particles: { x: number; y: number; vx: number; vy: number; life: number }[];
+        textAlpha: number; textY: number;
+        done: boolean;
+        constructor(x: number, y: number) {
+          this.x = x;
+          this.y = y;
+          this.textAlpha = 1;
+          this.textY = y;
+          this.done = false;
+          this.particles = [];
+          const count = 8 + Math.floor(Math.random() * 5);
+          for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 30 + Math.random() * 60;
+            this.particles.push({
+              x, y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 1
+            });
+          }
+        }
+        update(dt: number) {
+          let anyAlive = false;
+          for (const p of this.particles) {
+            if (p.life <= 0) continue;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vx *= 0.96;
+            p.vy *= 0.96;
+            p.life -= dt;
+            if (p.life > 0) anyAlive = true;
+          }
+          this.textAlpha -= dt * 0.67;
+          this.textY -= dt * 20;
+          if (this.textAlpha > 0) anyAlive = true;
+          this.done = !anyAlive;
+          return !this.done;
+        }
+        draw(drawCtx: CanvasRenderingContext2D) {
+          for (const p of this.particles) {
+            if (p.life <= 0) continue;
+            drawCtx.beginPath();
+            drawCtx.arc(p.x, p.y, 1, 0, Math.PI * 2);
+            drawCtx.fillStyle = 'rgba(235,225,210,' + Math.max(0, p.life) + ')';
+            drawCtx.fill();
+          }
+          if (this.textAlpha > 0) {
+            drawCtx.save();
+            drawCtx.font = '11px ui-monospace, "JetBrains Mono", monospace';
+            drawCtx.fillStyle = 'rgba(235,225,210,' + Math.max(0, this.textAlpha) + ')';
+            drawCtx.textAlign = 'center';
+            drawCtx.fillText('oops', this.x, this.textY);
+            drawCtx.restore();
+          }
+        }
+      }
+
+      const shootingStars: ShootingStar[] = [];
+      let nextShootingStarTime = 2 + Math.random() * 3;
+      const satellites: Satellite[] = [];
+      const debris: Debris[] = [];
+      let nextSatelliteTime = 20 + Math.random() * 30;
+      let lastTime = performance.now();
+      let animId: number;
+
+      function onSatelliteClick(e: MouseEvent) {
+        const cx = e.clientX;
+        const cy = e.clientY;
+        for (let i = satellites.length - 1; i >= 0; i--) {
+          const s = satellites[i];
+          const dx = s.x - cx;
+          const dy = s.y - cy;
+          if (dx * dx + dy * dy < 15 * 15) {
+            debris.push(new Debris(s.x, s.y));
+            satellites.splice(i, 1);
+            break;
+          }
+        }
+      }
+      document.addEventListener('click', onSatelliteClick);
+
+      function draw(now: number) {
+        const dt = Math.min((now - lastTime) / 1000, 0.1);
+        lastTime = now;
+        ctx!.clearRect(0, 0, w, h);
+        const parallaxX = (mouseX - 0.5) * -4;
+        const parallaxY = (mouseY - 0.5) * -4;
+        for (const s of stars) {
+          const twinkle = Math.sin(now * 0.001 * s.s * 1000 + s.phase);
+          const a = Math.max(0.05, Math.min(0.9, s.baseA + twinkle * 0.25));
+          let sx = (s.x + parallaxX) % w;
+          let sy = (s.y + parallaxY) % h;
+          if (sx < 0) sx += w;
+          if (sy < 0) sy += h;
+          ctx!.beginPath();
+          ctx!.arc(sx, sy, s.r, 0, Math.PI * 2);
+          ctx!.fillStyle = 'rgba(208,216,234,' + a + ')';
+          ctx!.fill();
+        }
+        nextShootingStarTime -= dt;
+        if (nextShootingStarTime <= 0) {
+          shootingStars.push(new ShootingStar(w, h));
+          nextShootingStarTime = 3 + Math.random() * 5;
+        }
+        for (let i = shootingStars.length - 1; i >= 0; i--) {
+          const alive = shootingStars[i].update(dt);
+          if (alive) {
+            shootingStars[i].draw(ctx!);
+          } else {
+            shootingStars.splice(i, 1);
+          }
+        }
+        nextSatelliteTime -= dt;
+        if (nextSatelliteTime <= 0) {
+          satellites.push(new Satellite(w, h));
+          nextSatelliteTime = 30 + Math.random() * 30;
+        }
+        for (let i = satellites.length - 1; i >= 0; i--) {
+          const alive = satellites[i].update(dt, w, h);
+          if (alive) {
+            satellites[i].draw(ctx!, now);
+          } else {
+            satellites.splice(i, 1);
+          }
+        }
+        for (let i = debris.length - 1; i >= 0; i--) {
+          const alive = debris[i].update(dt);
+          if (alive) {
+            debris[i].draw(ctx!);
+          } else {
+            debris.splice(i, 1);
+          }
+        }
+        animId = requestAnimationFrame(draw);
+      }
+      animId = requestAnimationFrame(draw);
+    }
+
+    // Initialize on first load and on each client-side navigation
+    document.addEventListener('astro:page-load', () => {
+      initStars();
+    });
+  </script>
 </html>
+
+<style is:global>
+  /* Star field canvas */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  /* Vignette */
+  .vignette {
+    position: fixed; inset: 0; z-index: 9996; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(6, 7, 12, 0.5) 80%, rgba(6, 7, 12, 0.8) 100%);
+  }
+
+  /* Subtle grain */
+  .grain {
+    position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  .page {
+    max-width: 840px; margin: 0 auto;
+    padding: 0 32px; position: relative; z-index: 1;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Crosshair */
+  .crosshair {
+    position: fixed; top: 50%; left: 50%;
+    width: 40px; height: 40px;
+    transform: translate(-50%, -50%);
+    z-index: 9991; pointer-events: none;
+    opacity: 0.08;
+  }
+  .crosshair::before {
+    content: ''; position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 1px; background: var(--text);
+  }
+  .crosshair::after {
+    content: ''; position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 1px; background: var(--text);
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 0 20px; }
+    .crosshair { display: none; }
+  }
+</style>

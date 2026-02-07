@@ -12,9 +12,8 @@ type Presentation = {
 };
 
 const presentation: Presentation = {
-	// mail: "maxencewolff.pro@gmail.com",
 	mail: "",
-	title: "Hey there, I’m Stefan 👋",
+	title: "Stefan Legg",
 	// profile: "/profile.webp",
 	description:
 		"I’ve been building for the web for over 15 years—everything from scrappy experiments to tools used by millions around the world. These days, I’m focused on React, TypeScript, and making commerce better for everyone 💚",

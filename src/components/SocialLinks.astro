@@ -1,18 +1,20 @@
 ---
 import presentation from "@/data/presentation";
-import Link from "./shared/Link.astro";
 ---
 
-<ul role="list" class="flex flex-row gap-2 sm:self-center">
-  {
-    presentation.socials.map((social, index) => (
-      <>
-        <li>
-          <Link href={social.link} label={social.label} />
-        </li>
+<div class="connect-list">
+  {presentation.socials.map((social) => (
+    <a href={social.link} target="_blank" rel="noopener" class="connect-link">
+      {social.label} / @stefanlegg
+    </a>
+  ))}
+</div>
 
-        {presentation.socials.length - 1 !== index && <li>/</li>}
-      </>
-    ))
+<style>
+  .connect-list { display: flex; flex-direction: column; gap: 14px; }
+  .connect-link {
+    font-family: var(--font-mono); font-size: 18px; font-weight: 400;
+    color: var(--text-body); text-decoration: none; transition: color 0.3s;
   }
-</ul>
+  .connect-link:hover { color: var(--accent-bright); text-shadow: 0 0 8px var(--accent-glow); }
+</style>
