@@ -18,10 +18,10 @@ const { showHud = false, ...headTags } = Astro.props;
 <html lang="en">
   <SEOTags {...headTags} />
   <body>
-    <canvas class="stars" id="stars"></canvas>
-    <div class="grain"></div>
-    <div class="vignette"></div>
-    <div class="crosshair"></div>
+    <canvas class="stars" id="stars" transition:persist></canvas>
+    <div class="grain" transition:persist></div>
+    <div class="vignette" transition:persist></div>
+    <div class="crosshair" transition:persist></div>
 
     {showHud && (
       <div class="hud">
@@ -45,7 +45,11 @@ const { showHud = false, ...headTags } = Astro.props;
   <ViewTransitions />
 
   <script>
+    let starsInitialized = false;
+
     function initStars() {
+      if (starsInitialized) return;
+      starsInitialized = true;
       const c = document.getElementById('stars') as HTMLCanvasElement;
       if (!c) return;
       const ctx = c.getContext('2d');
@@ -321,14 +325,6 @@ const { showHud = false, ...headTags } = Astro.props;
         animId = requestAnimationFrame(draw);
       }
       animId = requestAnimationFrame(draw);
-
-      // Cleanup on page transition
-      document.addEventListener('astro:before-swap', function cleanup() {
-        cancelAnimationFrame(animId);
-        window.removeEventListener('resize', resize);
-        document.removeEventListener('click', onSatelliteClick);
-        document.removeEventListener('astro:before-swap', cleanup);
-      }, { once: true });
     }
 
     function initClock() {
