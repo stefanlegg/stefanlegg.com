@@ -47,21 +47,6 @@ const { ...headTags } = Astro.props;
         h = c.height = window.innerHeight;
       }
       resize();
-      window.addEventListener('resize', () => {
-        const oldW = w;
-        const oldH = h;
-        resize();
-        const sx = w / oldW;
-        const sy = h / oldH;
-        for (const s of stars) { s.x *= sx; s.y *= sy; }
-      });
-
-      let mouseX = 0.5;
-      let mouseY = 0.5;
-      document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX / window.innerWidth;
-        mouseY = e.clientY / window.innerHeight;
-      });
 
       // Target density: ~250 stars at 1800x900 ≈ 0.000154 per px²
       const STAR_DENSITY = 250 / (1800 * 900);
@@ -83,6 +68,48 @@ const { ...headTags } = Astro.props;
         }
       }
       generateStars();
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) {
+        for (const s of stars) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(208,216,234,' + s.baseA + ')';
+          ctx.fill();
+        }
+        window.addEventListener('resize', () => {
+          const oldW = w;
+          const oldH = h;
+          resize();
+          const sx = w / oldW;
+          const sy = h / oldH;
+          for (const s of stars) { s.x *= sx; s.y *= sy; }
+          ctx.clearRect(0, 0, w, h);
+          for (const s of stars) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(208,216,234,' + s.baseA + ')';
+            ctx.fill();
+          }
+        });
+        return;
+      }
+
+      window.addEventListener('resize', () => {
+        const oldW = w;
+        const oldH = h;
+        resize();
+        const sx = w / oldW;
+        const sy = h / oldH;
+        for (const s of stars) { s.x *= sx; s.y *= sy; }
+      });
+
+      let mouseX = 0.5;
+      let mouseY = 0.5;
+      document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX / window.innerWidth;
+        mouseY = e.clientY / window.innerHeight;
+      });
 
       class ShootingStar {
         x: number; y: number; vx: number; vy: number;
