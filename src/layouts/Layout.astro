@@ -19,7 +19,7 @@ const { ...headTags } = Astro.props;
     <canvas class="stars" id="stars" transition:persist></canvas>
     <div class="grain" transition:persist></div>
     <div class="vignette" transition:persist></div>
-    <div class="crosshair" transition:persist></div>
+
 
     <div class="page">
       <Header />
@@ -400,27 +400,7 @@ const { ...headTags } = Astro.props;
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Crosshair */
-  .crosshair {
-    position: fixed; top: 50%; left: 50%;
-    width: 40px; height: 40px;
-    transform: translate(-50%, -50%);
-    z-index: 9991; pointer-events: none;
-    opacity: 0.08;
-  }
-  .crosshair::before {
-    content: ''; position: absolute;
-    top: 50%; left: 0; right: 0;
-    height: 1px; background: var(--text);
-  }
-  .crosshair::after {
-    content: ''; position: absolute;
-    left: 50%; top: 0; bottom: 0;
-    width: 1px; background: var(--text);
-  }
-
   @media (max-width: 600px) {
     .page { padding: 0 20px; }
-    .crosshair { display: none; }
   }
 </style>
