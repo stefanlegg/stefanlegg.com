@@ -129,7 +129,7 @@ const { ...headTags } = Astro.props;
           this.vy = Math.sin(dir) * speed;
           this.angle = Math.atan2(this.vy, this.vx);
           this.phase = Math.random() * Math.PI * 2;
-          this.variant = Math.random() > 0.5 ? 1 : 0;
+          this.variant = Math.floor(Math.random() * 3);
         }
         update(dt: number, canvasW: number, canvasH: number) {
           this.x += this.vx * dt;
@@ -159,7 +159,7 @@ const { ...headTags } = Astro.props;
             drawCtx.stroke();
             drawCtx.fillRect(-6, -1, 2, 2);
             drawCtx.fillRect(4, -1, 2, 2);
-          } else {
+          } else if (this.variant === 1) {
             // Variant B: H-shape (two tall panels + thin connecting strut)
             drawCtx.fillRect(-5, -2.5, 2, 5);
             drawCtx.fillRect(3, -2.5, 2, 5);
@@ -167,6 +167,43 @@ const { ...headTags } = Astro.props;
             drawCtx.moveTo(-3, 0);
             drawCtx.lineTo(3, 0);
             drawCtx.stroke();
+          } else {
+            // Variant C: tiny rocket ship (steady body, flickering exhaust)
+            const rocketCol = 'rgba(235,225,210,0.8)';
+            drawCtx.fillStyle = rocketCol;
+            drawCtx.strokeStyle = rocketCol;
+            // nose cone
+            drawCtx.beginPath();
+            drawCtx.moveTo(8, 0);
+            drawCtx.lineTo(4, -2);
+            drawCtx.lineTo(4, 2);
+            drawCtx.closePath();
+            drawCtx.fill();
+            // body
+            drawCtx.fillRect(-4, -1.5, 8, 3);
+            // fins
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, -1.5);
+            drawCtx.lineTo(-6, -4.5);
+            drawCtx.lineTo(-1, -1.5);
+            drawCtx.closePath();
+            drawCtx.fill();
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, 1.5);
+            drawCtx.lineTo(-6, 4.5);
+            drawCtx.lineTo(-1, 1.5);
+            drawCtx.closePath();
+            drawCtx.fill();
+            // exhaust flame (flickers with pulse)
+            const flicker = 0.6 + pulse * 0.4;
+            const flameLen = 5 + pulse * 5;
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, -1);
+            drawCtx.lineTo(-4 - flameLen, 0);
+            drawCtx.lineTo(-4, 1);
+            drawCtx.closePath();
+            drawCtx.fillStyle = 'rgba(255,180,80,' + (0.8 * flicker) + ')';
+            drawCtx.fill();
           }
           drawCtx.restore();
         }
