@@ -19,7 +19,7 @@ const { ...headTags } = Astro.props;
     <canvas class="stars" id="stars" transition:persist></canvas>
     <div class="grain" transition:persist></div>
     <div class="vignette" transition:persist></div>
-    <div class="crosshair" transition:persist></div>
+
 
     <div class="page">
       <Header />
@@ -47,7 +47,62 @@ const { ...headTags } = Astro.props;
         h = c.height = window.innerHeight;
       }
       resize();
-      window.addEventListener('resize', resize);
+
+      // Target density: ~250 stars at 1800x900 ≈ 0.000154 per px²
+      const STAR_DENSITY = 250 / (1800 * 900);
+      let stars: { x: number; y: number; r: number; a: number; baseA: number; s: number; phase: number }[] = [];
+
+      function generateStars() {
+        const count = Math.round(STAR_DENSITY * w * h);
+        stars = [];
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 1.2 + 0.3,
+            a: Math.random() * 0.6 + 0.2,
+            baseA: Math.random() * 0.6 + 0.2,
+            s: Math.random() * 0.004 + 0.001,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+      generateStars();
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) {
+        for (const s of stars) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(208,216,234,' + s.baseA + ')';
+          ctx.fill();
+        }
+        window.addEventListener('resize', () => {
+          const oldW = w;
+          const oldH = h;
+          resize();
+          const sx = w / oldW;
+          const sy = h / oldH;
+          for (const s of stars) { s.x *= sx; s.y *= sy; }
+          ctx.clearRect(0, 0, w, h);
+          for (const s of stars) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(208,216,234,' + s.baseA + ')';
+            ctx.fill();
+          }
+        });
+        return;
+      }
+
+      window.addEventListener('resize', () => {
+        const oldW = w;
+        const oldH = h;
+        resize();
+        const sx = w / oldW;
+        const sy = h / oldH;
+        for (const s of stars) { s.x *= sx; s.y *= sy; }
+      });
 
       let mouseX = 0.5;
       let mouseY = 0.5;
@@ -55,19 +110,6 @@ const { ...headTags } = Astro.props;
         mouseX = e.clientX / window.innerWidth;
         mouseY = e.clientY / window.innerHeight;
       });
-
-      const stars: { x: number; y: number; r: number; a: number; baseA: number; s: number; phase: number }[] = [];
-      for (let i = 0; i < 250; i++) {
-        stars.push({
-          x: Math.random() * 2000,
-          y: Math.random() * 2000,
-          r: Math.random() * 1.2 + 0.3,
-          a: Math.random() * 0.6 + 0.2,
-          baseA: Math.random() * 0.6 + 0.2,
-          s: Math.random() * 0.004 + 0.001,
-          phase: Math.random() * Math.PI * 2
-        });
-      }
 
       class ShootingStar {
         x: number; y: number; vx: number; vy: number;
@@ -129,7 +171,7 @@ const { ...headTags } = Astro.props;
           this.vy = Math.sin(dir) * speed;
           this.angle = Math.atan2(this.vy, this.vx);
           this.phase = Math.random() * Math.PI * 2;
-          this.variant = Math.random() > 0.5 ? 1 : 0;
+          this.variant = Math.floor(Math.random() * 3);
         }
         update(dt: number, canvasW: number, canvasH: number) {
           this.x += this.vx * dt;
@@ -159,7 +201,7 @@ const { ...headTags } = Astro.props;
             drawCtx.stroke();
             drawCtx.fillRect(-6, -1, 2, 2);
             drawCtx.fillRect(4, -1, 2, 2);
-          } else {
+          } else if (this.variant === 1) {
             // Variant B: H-shape (two tall panels + thin connecting strut)
             drawCtx.fillRect(-5, -2.5, 2, 5);
             drawCtx.fillRect(3, -2.5, 2, 5);
@@ -167,6 +209,43 @@ const { ...headTags } = Astro.props;
             drawCtx.moveTo(-3, 0);
             drawCtx.lineTo(3, 0);
             drawCtx.stroke();
+          } else {
+            // Variant C: tiny rocket ship (steady body, flickering exhaust)
+            const rocketCol = 'rgba(235,225,210,0.8)';
+            drawCtx.fillStyle = rocketCol;
+            drawCtx.strokeStyle = rocketCol;
+            // nose cone
+            drawCtx.beginPath();
+            drawCtx.moveTo(8, 0);
+            drawCtx.lineTo(4, -2);
+            drawCtx.lineTo(4, 2);
+            drawCtx.closePath();
+            drawCtx.fill();
+            // body
+            drawCtx.fillRect(-4, -1.5, 8, 3);
+            // fins
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, -1.5);
+            drawCtx.lineTo(-6, -4.5);
+            drawCtx.lineTo(-1, -1.5);
+            drawCtx.closePath();
+            drawCtx.fill();
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, 1.5);
+            drawCtx.lineTo(-6, 4.5);
+            drawCtx.lineTo(-1, 1.5);
+            drawCtx.closePath();
+            drawCtx.fill();
+            // exhaust flame (flickers with pulse)
+            const flicker = 0.6 + pulse * 0.4;
+            const flameLen = 5 + pulse * 5;
+            drawCtx.beginPath();
+            drawCtx.moveTo(-4, -1);
+            drawCtx.lineTo(-4 - flameLen, 0);
+            drawCtx.lineTo(-4, 1);
+            drawCtx.closePath();
+            drawCtx.fillStyle = 'rgba(255,180,80,' + (0.8 * flicker) + ')';
+            drawCtx.fill();
           }
           drawCtx.restore();
         }
@@ -265,10 +344,8 @@ const { ...headTags } = Astro.props;
         for (const s of stars) {
           const twinkle = Math.sin(now * 0.001 * s.s * 1000 + s.phase);
           const a = Math.max(0.05, Math.min(0.9, s.baseA + twinkle * 0.25));
-          let sx = (s.x + parallaxX) % w;
-          let sy = (s.y + parallaxY) % h;
-          if (sx < 0) sx += w;
-          if (sy < 0) sy += h;
+          const sx = s.x + parallaxX;
+          const sy = s.y + parallaxY;
           ctx!.beginPath();
           ctx!.arc(sx, sy, s.r, 0, Math.PI * 2);
           ctx!.fillStyle = 'rgba(208,216,234,' + a + ')';
@@ -350,27 +427,7 @@ const { ...headTags } = Astro.props;
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Crosshair */
-  .crosshair {
-    position: fixed; top: 50%; left: 50%;
-    width: 40px; height: 40px;
-    transform: translate(-50%, -50%);
-    z-index: 9991; pointer-events: none;
-    opacity: 0.08;
-  }
-  .crosshair::before {
-    content: ''; position: absolute;
-    top: 50%; left: 0; right: 0;
-    height: 1px; background: var(--text);
-  }
-  .crosshair::after {
-    content: ''; position: absolute;
-    left: 50%; top: 0; bottom: 0;
-    width: 1px; background: var(--text);
-  }
-
   @media (max-width: 600px) {
     .page { padding: 0 20px; }
-    .crosshair { display: none; }
   }
 </style>

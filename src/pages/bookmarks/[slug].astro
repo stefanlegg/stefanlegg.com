@@ -28,4 +28,8 @@ if (bookmark.data.url) {
 // For now, let's assume the URL is always present.
 // If you want to handle cases where URL might be missing, we can add that.
 ---
-<!-- Content removed as the page will redirect -->
+<Layout>
+  <p style="font-family: var(--font-mono); font-size: 14px; color: var(--text-label); padding: 64px 0;">
+    Redirecting to <a href={bookmark.data.url}>{bookmark.data.title}</a>...
+  </p>
+</Layout>

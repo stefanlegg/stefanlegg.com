@@ -15,20 +15,20 @@ const posts = (await getCollection("posts")).sort(
 
 <Layout>
   <div class="hero">
-    <div class="hero-name"><strong>Stefan</strong> Legg</div>
+    <h1 class="hero-name"><strong>Stefan</strong> Legg</h1>
     <div class="hero-role">Software Engineer</div>
     <div class="hero-sub">15+ years building for the web &mdash; currently at Shopify</div>
   </div>
 
   <div class="section" style="animation-delay: 0.5s;">
-    <div class="section-label">About</div>
+    <h2 class="section-label">About</h2>
     <div class="section-text">
       I've been building for the web for <strong>over 15 years</strong> — everything from scrappy experiments to tools used by <strong>millions around the world</strong>. These days, I'm focused on React, TypeScript, and making commerce better for everyone.
     </div>
   </div>
 
   <div class="section" style="animation-delay: 0.6s;">
-    <div class="section-label">Work</div>
+    <h2 class="section-label">Work</h2>
     <div class="project-list">
       {projects.map((project, index) => (
         <ProjectCard {...project} index={index} />
@@ -38,7 +38,7 @@ const posts = (await getCollection("posts")).sort(
 
   {posts.length > 0 && (
     <div class="section" style="animation-delay: 0.75s;">
-      <div class="section-label">Writing</div>
+      <h2 class="section-label">Writing</h2>
       {posts.slice(0, 1).map((post) => (
         <PostCard
           publishedAt={post.data.publishedAt}
@@ -52,7 +52,7 @@ const posts = (await getCollection("posts")).sort(
   )}
 
   <div class="section" style="animation-delay: 0.85s;">
-    <div class="section-label">Connect</div>
+    <h2 class="section-label">Connect</h2>
     <SocialLinks />
   </div>
 

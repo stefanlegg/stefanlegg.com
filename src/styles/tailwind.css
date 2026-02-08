@@ -9,7 +9,7 @@
 	--text: #d0d8ea;
 	--text-strong: rgba(208, 216, 234, 0.92);
 	--text-body: rgba(208, 216, 234, 0.82);
-	--text-label: rgba(208, 216, 234, 0.68);
+	--text-label: rgba(208, 216, 234, 0.72);
 	--text-muted: rgba(208, 216, 234, 0.58);
 	--text-faint: rgba(208, 216, 234, 0.22);
 	--text-rule: rgba(208, 216, 234, 0.1);
@@ -26,6 +26,7 @@
 
 html {
 	background: var(--bg);
+	scrollbar-gutter: stable;
 }
 
 body {
@@ -37,4 +38,17 @@ body {
 	min-height: 100vh;
 	overflow-x: hidden;
 	-webkit-font-smoothing: antialiased;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--accent-bright);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }
