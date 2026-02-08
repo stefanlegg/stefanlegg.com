@@ -12,6 +12,16 @@ const pathname = removeTrailingSlash(Astro.url.pathname);
   </div>
 </nav>
 
+<script>
+  document.addEventListener('astro:after-swap', () => {
+    const nav = document.querySelector('.nav');
+    if (nav instanceof HTMLElement) {
+      nav.style.opacity = '1';
+      nav.style.animation = 'none';
+    }
+  });
+</script>
+
 <style>
   .nav {
     display: flex; justify-content: center; align-items: center;
