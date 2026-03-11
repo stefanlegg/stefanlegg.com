@@ -1,0 +1,62 @@
+---
+/**
+ * Konami Code Easter Egg
+ * Trigger: ↑↑↓↓←→←→BA
+ * 
+ * This component only sets up a lightweight keydown listener.
+ * The actual game code is lazy-loaded only when the sequence is completed.
+ */
+---
+
+<canvas id="game-canvas"></canvas>
+
+<div id="ship-hud">
+  <div id="ship-score">SCORE: <span id="score-value">0</span></div>
+  <div id="ship-hint">
+    <div>ESC to exit</div>
+    <div>Arrows to fly</div>
+    <div>Space to shoot</div>
+  </div>
+</div>
+
+<div id="capture-loading">
+  <div class="capture-text">SCANNING...</div>
+</div>
+
+<script>
+  // Load everything during idle - mirrors client:idle behavior
+  document.addEventListener('astro:page-load', () => {
+    const load = () => import('./konami-listener').then(m => m.init());
+    'requestIdleCallback' in window ? requestIdleCallback(load) : setTimeout(load, 1);
+  });
+</script>
+
+<style is:global>
+  #game-canvas {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 99999; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+  }
+  #game-canvas.active { opacity: 1; pointer-events: auto; }
+
+  #ship-hud {
+    position: fixed; top: 24px; left: 24px; z-index: 100002;
+    text-align: left; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+    background: rgba(8, 9, 14, 0.7); padding: 16px 20px; border-radius: 8px;
+    border: 1px solid rgba(208, 216, 234, 0.1);
+  }
+  #ship-hud.active { opacity: 1; }
+  #ship-score { font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: rgba(208, 216, 234, 1); text-shadow: 0 0 12px rgba(208, 216, 234, 0.4); letter-spacing: 3px; }
+  #ship-hint { font-family: var(--font-mono); font-size: 13px; color: rgba(208, 216, 234, 0.8); margin-top: 12px; letter-spacing: 1px; line-height: 1.6; }
+  #ship-hint div { margin-bottom: 2px; }
+
+  #capture-loading {
+    position: fixed; inset: 0; z-index: 100004;
+    background: rgba(10, 10, 15, 0.9); display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+  }
+  #capture-loading.active { opacity: 1; pointer-events: auto; }
+  .capture-text { font-family: var(--font-mono); font-size: 18px; color: rgba(160, 128, 196, 1); letter-spacing: 6px; animation: pulse 1s ease-in-out infinite; }
+
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  @keyframes flash-out { from { opacity: 1; } to { opacity: 0; } }
+</style>

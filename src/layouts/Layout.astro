@@ -3,6 +3,7 @@ import { ViewTransitions } from "astro:transitions";
 import SEOTags from "@/components/seo/SEOTags.astro";
 import type { HeadTags } from "@/utils/types/HeadTags";
 import Header from "../components/Header.astro";
+import KonamiGame from "../components/KonamiGame.astro";
 
 import "@/styles/tailwind.css";
 import "@/styles/post.css";
@@ -20,13 +21,14 @@ const { ...headTags } = Astro.props;
     <div class="grain" transition:persist></div>
     <div class="vignette" transition:persist></div>
 
-
     <div class="page">
       <Header />
       <main>
         <slot />
       </main>
     </div>
+
+    <KonamiGame />
   </body>
   <ViewTransitions />
 
