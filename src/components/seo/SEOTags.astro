@@ -126,6 +126,7 @@ const articleSchema = article ? {
         { name: "twitter:site", content: "@stefanlegg" },
         ...(article ? [
           { property: "article:published_time", content: article.publishedTime },
+          { property: "article:modified_time", content: article.modifiedTime || article.publishedTime },
           { property: "article:author", content: article.author || "Stefan Legg" },
         ] : []),
       ],

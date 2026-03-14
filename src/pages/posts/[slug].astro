@@ -26,6 +26,7 @@ const { Content } = await post.render();
   og={{ type: "article" }}
   article={{
     publishedTime: post.data.publishedAt.toISOString(),
+    modifiedTime: post.data.modifiedAt?.toISOString(),
     author: "Stefan Legg"
   }}
 >
