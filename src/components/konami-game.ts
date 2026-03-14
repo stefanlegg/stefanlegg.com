@@ -50,6 +50,19 @@ export function startGame() {
   
   interface Particle { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; color: string; radius: number; }
   const particles: Particle[] = [];
+  
+  // Victory state
+  let victoryTriggered = false;
+  let victoryTime = 0;
+  const victoryMessages = [
+    "Mission successful: time wasted!",
+    "Congratulations! You broke the internet.",
+    "You monster... that page had a family.",
+    "DOM: Destroyed On Mayhem",
+    "ctrl+z won't save you now",
+    "Achievement Unlocked: Keyboard Warrior",
+  ];
+  let victoryMessage = "";
 
   function resize() {
     dpr = window.devicePixelRatio || 1;
@@ -174,6 +187,7 @@ export function startGame() {
     const mainContent = document.querySelector('main') as HTMLElement;
     if (mainContent) mainContent.style.visibility = '';
     entities = []; bullets.length = 0; particles.length = 0; backgroundCanvas = null;
+    victoryTriggered = false; victoryTime = 0; victoryMessage = "";
     ctx.clearRect(0, 0, w, h);
   }
 
@@ -198,6 +212,77 @@ export function startGame() {
       const angle = Math.random() * Math.PI * 2;
       const speed = 60 + Math.random() * 100;
       particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 1, maxLife: 0.3 + Math.random() * 0.3, color: 'rgba(160,128,196,1)', radius: 0.5 + Math.random() * 1 });
+    }
+  }
+
+  function spawnFirework(x: number, y: number) {
+    const colors = [
+      'rgba(255,180,120,1)',  // orange
+      'rgba(160,128,196,1)',  // purple (site accent)
+      'rgba(120,220,180,1)',  // teal
+      'rgba(255,120,150,1)',  // pink
+      'rgba(208,216,234,1)',  // cream (site text)
+      'rgba(255,220,100,1)',  // gold
+    ];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const count = 40 + Math.floor(Math.random() * 30);
+    
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 100 + Math.random() * 200;
+      const life = 0.8 + Math.random() * 0.8;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 50, // slight upward bias
+        life: 1,
+        maxLife: life,
+        color,
+        radius: 2 + Math.random() * 3
+      });
+    }
+    // Add sparkle core
+    for (let i = 0; i < 15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 40 + Math.random() * 60;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        maxLife: 0.4 + Math.random() * 0.3,
+        color: 'rgba(255,255,255,1)',
+        radius: 1 + Math.random() * 1.5
+      });
+    }
+  }
+
+  function triggerVictory() {
+    if (victoryTriggered) return;
+    victoryTriggered = true;
+    victoryTime = gameTime;
+    victoryMessage = victoryMessages[Math.floor(Math.random() * victoryMessages.length)];
+    
+    // Initial burst of fireworks
+    const positions = [
+      { x: w * 0.2, y: h * 0.3 },
+      { x: w * 0.5, y: h * 0.25 },
+      { x: w * 0.8, y: h * 0.3 },
+      { x: w * 0.35, y: h * 0.5 },
+      { x: w * 0.65, y: h * 0.5 },
+    ];
+    positions.forEach((pos, i) => {
+      setTimeout(() => spawnFirework(pos.x, pos.y), i * 150);
+    });
+  }
+
+  function checkVictory() {
+    if (victoryTriggered || !entitiesReady) return;
+    const remaining = entities.filter(e => !e.destroyed).length;
+    if (remaining === 0 && entities.length > 0) {
+      triggerVictory();
+      // Hide the HUD for cleaner victory screen
+      hud.classList.remove('active');
     }
   }
 
@@ -324,9 +409,78 @@ export function startGame() {
     for (const p of particles) { ctx.beginPath(); ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2); ctx.fillStyle = p.color.replace('1)', `${p.life})`); ctx.fill(); }
   }
 
+  function drawVictory() {
+    if (!victoryTriggered) return;
+    
+    const elapsed = gameTime - victoryTime;
+    const fadeIn = Math.min(1, elapsed / 0.5);
+    
+    // Draw message with glow
+    ctx.save();
+    ctx.globalAlpha = fadeIn;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Glow layers
+    ctx.font = `bold 42px monospace`;
+    ctx.fillStyle = 'rgba(160,128,196,0.3)';
+    ctx.fillText(victoryMessage, w / 2, h / 2 - 2);
+    ctx.fillText(victoryMessage, w / 2, h / 2 + 2);
+    ctx.fillText(victoryMessage, w / 2 - 2, h / 2);
+    ctx.fillText(victoryMessage, w / 2 + 2, h / 2);
+    
+    // Main text
+    ctx.fillStyle = 'rgba(235,230,245,1)';
+    ctx.fillText(victoryMessage, w / 2, h / 2);
+    
+    // Score display
+    ctx.font = `24px monospace`;
+    ctx.fillStyle = 'rgba(208,216,234,0.8)';
+    ctx.fillText(`FINAL SCORE: ${score}`, w / 2, h / 2 + 50);
+    
+    // Exit hint (fade in after 1.5s)
+    if (elapsed > 1.5) {
+      const hintAlpha = Math.min(0.6, (elapsed - 1.5) / 0.5);
+      ctx.globalAlpha = hintAlpha;
+      ctx.font = `16px monospace`;
+      ctx.fillStyle = 'rgba(208,216,234,1)';
+      ctx.fillText('ESC to return to reality', w / 2, h / 2 + 100);
+    }
+    
+    ctx.restore();
+  }
+
+  function updateVictory() {
+    if (!victoryTriggered) return;
+    
+    const elapsed = gameTime - victoryTime;
+    
+    // Spawn periodic fireworks for first 3 seconds
+    if (elapsed < 3 && Math.random() < 0.08) {
+      spawnFirework(
+        w * (0.15 + Math.random() * 0.7),
+        h * (0.2 + Math.random() * 0.4)
+      );
+    }
+  }
+
   function gameLoop(now: number) {
     const dt = Math.min((now - lastTime) / 1000, 0.1); lastTime = now; gameTime += dt;
-    if (entitiesReady) { updateShip(dt); updateBullets(dt); updateEntities(dt); updateParticles(dt); checkBulletCollisions(); drawBackground(); drawEntities(); drawParticles(); drawBullets(); drawShip(); }
+    if (entitiesReady) { 
+      updateShip(dt); 
+      updateBullets(dt); 
+      updateEntities(dt); 
+      updateParticles(dt); 
+      checkBulletCollisions(); 
+      checkVictory();
+      updateVictory();
+      drawBackground(); 
+      drawEntities(); 
+      drawParticles(); 
+      drawBullets(); 
+      if (!victoryTriggered) drawShip();
+      drawVictory();
+    }
     else { ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0, 0, w, h); }
     if (shipModeActive) animId = requestAnimationFrame(gameLoop);
   }
