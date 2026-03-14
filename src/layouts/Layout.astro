@@ -28,6 +28,11 @@ const { ...headTags } = Astro.props;
       </main>
     </div>
 
+    <div class="scroll-secret">
+      <span>huh, still scrolling? try another method...</span>
+      <span class="hint">↑↑↓↓←→←→BA</span>
+    </div>
+
     <KonamiGame />
   </body>
   <ViewTransitions />
@@ -395,6 +400,51 @@ const { ...headTags } = Astro.props;
     // Initialize on first load and on each client-side navigation
     document.addEventListener('astro:page-load', () => {
       initStars();
+      // 🤫
+      console.log('%c// TODO: remove konami code before launch 🤫', 'color: #a080c4');
+      
+      // Scroll secret reveal - only when trying to scroll past the bottom
+      const secret = document.querySelector('.scroll-secret');
+      if (secret) {
+        let overscrollCount = 0;
+        const threshold = 6; // Number of scroll attempts at bottom before reveal
+        
+        window.addEventListener('wheel', (e) => {
+          if (e.deltaY > 0) { // Scrolling down
+            const scrollBottom = window.innerHeight + window.scrollY;
+            const docHeight = document.documentElement.scrollHeight;
+            
+            if (scrollBottom >= docHeight - 10) {
+              overscrollCount++;
+              if (overscrollCount >= threshold) {
+                secret.classList.add('visible');
+              }
+            }
+          }
+        }, { passive: true });
+        
+        // Touch support for mobile
+        let lastTouchY = 0;
+        window.addEventListener('touchstart', (e) => {
+          lastTouchY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        window.addEventListener('touchmove', (e) => {
+          const touchY = e.touches[0].clientY;
+          if (lastTouchY > touchY) { // Swiping up (scrolling down)
+            const scrollBottom = window.innerHeight + window.scrollY;
+            const docHeight = document.documentElement.scrollHeight;
+            
+            if (scrollBottom >= docHeight - 10) {
+              overscrollCount++;
+              if (overscrollCount >= threshold) {
+                secret.classList.add('visible');
+              }
+            }
+          }
+          lastTouchY = touchY;
+        }, { passive: true });
+      }
     });
   </script>
 </html>
@@ -421,7 +471,7 @@ const { ...headTags } = Astro.props;
 
   .page {
     max-width: 840px; margin: 0 auto;
-    padding: 0 32px; position: relative; z-index: 1;
+    padding: 0 32px 120px; position: relative; z-index: 1;
   }
 
   @keyframes fade-up {
@@ -431,5 +481,36 @@ const { ...headTags } = Astro.props;
 
   @media (max-width: 600px) {
     .page { padding: 0 20px; }
+  }
+
+  /* Scroll secret */
+  .scroll-secret {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 30px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: rgba(208, 216, 234, 0.25);
+    letter-spacing: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 1.5s ease, transform 0.8s ease;
+    z-index: 10;
+  }
+  .scroll-secret .hint {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+  .scroll-secret.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 </style>
