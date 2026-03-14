@@ -17,7 +17,7 @@ const posts = (await getCollection("posts")).sort(
   <div class="hero">
     <h1 class="hero-name"><strong>Stefan</strong> Legg</h1>
     <div class="hero-role">Software Engineer</div>
-    <div class="hero-sub">15+ years building for the web &mdash; currently at Shopify</div>
+    <div class="hero-sub">15+ years building for the web &mdash; currently at <a href="https://shopify.com" target="_blank" rel="noopener" class="shopify-link">Shopify</a></div>
   </div>
 
   <div class="section" style="animation-delay: 0.5s;">
@@ -106,6 +106,14 @@ const posts = (await getCollection("posts")).sort(
     font-family: var(--font-mono); font-size: 14px;
     color: var(--text-label); margin-top: 10px;
     letter-spacing: 1px;
+  }
+  .shopify-link {
+    color: var(--text-label);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .shopify-link:hover {
+    color: #8bba6a;
   }
 
   .section {
