@@ -483,6 +483,11 @@ const { ...headTags } = Astro.props;
     .page { padding: 0 20px; }
   }
 
+  /* Hide overscroll hint on touch/mobile devices */
+  @media (pointer: coarse), (hover: none) {
+    .scroll-secret { display: none; }
+  }
+
   /* Scroll secret */
   .scroll-secret {
     position: fixed;
