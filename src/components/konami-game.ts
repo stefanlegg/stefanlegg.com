@@ -10,6 +10,7 @@ export function startGame() {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
   const hud = document.getElementById('ship-hud') as HTMLDivElement;
   const scoreValue = document.getElementById('score-value') as HTMLSpanElement;
+  const bombIndicator = document.getElementById('bomb-indicator') as HTMLDivElement;
   const loadingEl = document.getElementById('capture-loading') as HTMLDivElement;
   if (!canvas || !hud) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
@@ -51,6 +52,18 @@ export function startGame() {
   interface Particle { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; color: string; radius: number; }
   const particles: Particle[] = [];
   
+  // Upgrade state
+  let spreadLevel = 1; // 1 = single, 3 = triple, 5 = penta
+  let bulletSizeMultiplier = 1;
+  let hasBlackHoleBomb = false;
+  let lastUpgradeScore = 0;
+  
+  interface Pickup { x: number; y: number; type: 'blackhole'; radius: number; pulse: number; }
+  const pickups: Pickup[] = [];
+  
+  interface BlackHole { x: number; y: number; radius: number; maxRadius: number; life: number; maxLife: number; sucking: boolean; }
+  const blackHoles: BlackHole[] = [];
+
   // Victory state
   let victoryTriggered = false;
   let victoryTime = 0;
@@ -187,7 +200,10 @@ export function startGame() {
     const mainContent = document.querySelector('main') as HTMLElement;
     if (mainContent) mainContent.style.visibility = '';
     entities = []; bullets.length = 0; particles.length = 0; backgroundCanvas = null;
+    pickups.length = 0; blackHoles.length = 0;
     victoryTriggered = false; victoryTime = 0; victoryMessage = "";
+    spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0;
+    bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
   }
 
@@ -287,11 +303,219 @@ export function startGame() {
   }
 
   function shoot() {
-    const speed = 500, bulletAngle = ship.angle;
-    bullets.push({ x: ship.x + Math.cos(bulletAngle) * 18, y: ship.y + Math.sin(bulletAngle) * 18, vx: Math.cos(bulletAngle) * speed + ship.vx * 0.3, vy: Math.sin(bulletAngle) * speed + ship.vy * 0.3, life: 2.5, radius: 4, pulse: Math.random() * Math.PI * 2 });
+    // Black hole bomb takes priority
+    if (hasBlackHoleBomb) {
+      hasBlackHoleBomb = false;
+      bombIndicator?.classList.remove('active');
+      const speed = 400;
+      const bx = ship.x + Math.cos(ship.angle) * 18;
+      const by = ship.y + Math.sin(ship.angle) * 18;
+      // Create a special "black hole bullet" - we'll track it separately
+      bullets.push({ 
+        x: bx, y: by, 
+        vx: Math.cos(ship.angle) * speed + ship.vx * 0.3, 
+        vy: Math.sin(ship.angle) * speed + ship.vy * 0.3, 
+        life: 5, radius: 12, pulse: 0, 
+        isBlackHole: true 
+      } as any);
+      // Purple flash effect
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2, spd = 80 + Math.random() * 100;
+        particles.push({ x: bx, y: by, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 1, maxLife: 0.3, color: 'rgba(120,80,180,1)', radius: 2 + Math.random() * 2 });
+      }
+      return;
+    }
+    
+    const speed = 500;
+    const baseAngle = ship.angle;
+    const bulletRadius = 4 * bulletSizeMultiplier;
+    const spreadAngle = 0.15; // radians between spread bullets
+    
+    // Calculate angles based on spread level
+    const angles: number[] = [];
+    if (spreadLevel === 1) {
+      angles.push(baseAngle);
+    } else if (spreadLevel === 3) {
+      angles.push(baseAngle - spreadAngle, baseAngle, baseAngle + spreadAngle);
+    } else if (spreadLevel >= 5) {
+      angles.push(baseAngle - spreadAngle * 2, baseAngle - spreadAngle, baseAngle, baseAngle + spreadAngle, baseAngle + spreadAngle * 2);
+    }
+    
+    for (const bulletAngle of angles) {
+      bullets.push({ 
+        x: ship.x + Math.cos(bulletAngle) * 18, 
+        y: ship.y + Math.sin(bulletAngle) * 18, 
+        vx: Math.cos(bulletAngle) * speed + ship.vx * 0.3, 
+        vy: Math.sin(bulletAngle) * speed + ship.vy * 0.3, 
+        life: 2.5, 
+        radius: bulletRadius, 
+        pulse: Math.random() * Math.PI * 2 
+      });
+    }
+    
+    // Muzzle particles
     for (let i = 0; i < 4; i++) {
-      const angle = bulletAngle + (Math.random() - 0.5) * 0.8, spd = 60 + Math.random() * 80;
-      particles.push({ x: ship.x + Math.cos(bulletAngle) * 18, y: ship.y + Math.sin(bulletAngle) * 18, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 1, maxLife: 0.2, color: 'rgba(208,216,234,0.8)', radius: 1 + Math.random() * 0.8 });
+      const angle = baseAngle + (Math.random() - 0.5) * 0.8, spd = 60 + Math.random() * 80;
+      particles.push({ x: ship.x + Math.cos(baseAngle) * 18, y: ship.y + Math.sin(baseAngle) * 18, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 1, maxLife: 0.2, color: 'rgba(208,216,234,0.8)', radius: 1 + Math.random() * 0.8 });
+    }
+  }
+  
+  function spawnPickup(x: number, y: number) {
+    pickups.push({ x, y, type: 'blackhole', radius: 20, pulse: 0 });
+  }
+  
+  function detonateBlackHole(x: number, y: number) {
+    blackHoles.push({ x, y, radius: 10, maxRadius: 200, life: 2, maxLife: 2, sucking: true });
+    // Spawn effect
+    for (let i = 0; i < 20; i++) {
+      const angle = Math.random() * Math.PI * 2, spd = 30 + Math.random() * 50;
+      particles.push({ x, y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 1, maxLife: 0.5, color: 'rgba(80,40,120,1)', radius: 3 + Math.random() * 3 });
+    }
+  }
+  
+  function checkUpgrades() {
+    // Spread upgrades
+    if (score >= 500 && spreadLevel < 3) {
+      spreadLevel = 3;
+      flashScreen();
+    }
+    if (score >= 1500 && spreadLevel < 5) {
+      spreadLevel = 5;
+      flashScreen();
+    }
+    
+    // Bullet size upgrades
+    if (score >= 300) bulletSizeMultiplier = 1.25;
+    if (score >= 800) bulletSizeMultiplier = 1.5;
+    if (score >= 1200) bulletSizeMultiplier = 1.75;
+    
+    // Spawn black hole pickup every 1000 points (if we don't already have one)
+    const pickupThreshold = Math.floor(score / 1000) * 1000;
+    if (pickupThreshold > lastUpgradeScore && pickupThreshold > 0 && !hasBlackHoleBomb) {
+      lastUpgradeScore = pickupThreshold;
+      // Spawn pickup at random position (not too close to edges)
+      const px = 100 + Math.random() * (w - 200);
+      const py = 100 + Math.random() * (h - 200);
+      spawnPickup(px, py);
+    }
+  }
+  
+  function updatePickups(dt: number) {
+    for (let i = pickups.length - 1; i >= 0; i--) {
+      const p = pickups[i];
+      p.pulse += dt * 4;
+      
+      // Check collision with ship
+      const dx = ship.x - p.x, dy = ship.y - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < p.radius + 15) {
+        hasBlackHoleBomb = true;
+        bombIndicator?.classList.add('active');
+        pickups.splice(i, 1);
+        flashScreen();
+      }
+    }
+  }
+  
+  function updateBlackHoles(dt: number) {
+    for (let i = blackHoles.length - 1; i >= 0; i--) {
+      const bh = blackHoles[i];
+      bh.life -= dt;
+      
+      // Grow radius
+      const progress = 1 - (bh.life / bh.maxLife);
+      bh.radius = bh.maxRadius * Math.min(1, progress * 2);
+      
+      // Suck in entities
+      if (bh.sucking) {
+        for (const entity of entities) {
+          if (entity.destroyed) continue;
+          const dx = bh.x - (entity.x + entity.width / 2);
+          const dy = bh.y - (entity.y + entity.height / 2);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < bh.radius) {
+            // Pull toward center
+            const force = (1 - dist / bh.radius) * 800;
+            entity.vx += (dx / dist) * force * dt;
+            entity.vy += (dy / dist) * force * dt;
+            entity.x += entity.vx * dt;
+            entity.y += entity.vy * dt;
+            
+            // Destroy if close to center
+            if (dist < 30) {
+              destroyEntity(entity);
+            }
+          }
+        }
+      }
+      
+      // Spawn swirl particles
+      if (Math.random() < 0.3) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = bh.radius * (0.5 + Math.random() * 0.5);
+        particles.push({
+          x: bh.x + Math.cos(angle) * dist,
+          y: bh.y + Math.sin(angle) * dist,
+          vx: -Math.sin(angle) * 100,
+          vy: Math.cos(angle) * 100,
+          life: 1, maxLife: 0.4,
+          color: 'rgba(120,80,180,0.8)',
+          radius: 2 + Math.random() * 2
+        });
+      }
+      
+      if (bh.life <= 0) blackHoles.splice(i, 1);
+    }
+  }
+  
+  function drawPickups() {
+    for (const p of pickups) {
+      const pulse = Math.sin(p.pulse) * 0.3 + 0.7;
+      const r = p.radius * pulse;
+      
+      // Outer glow
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(80,40,120,0.3)';
+      ctx.fill();
+      
+      // Inner orb
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(120,80,180,0.8)';
+      ctx.fill();
+      
+      // Core
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r * 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180,140,220,1)';
+      ctx.fill();
+    }
+  }
+  
+  function drawBlackHoles() {
+    for (const bh of blackHoles) {
+      const alpha = bh.life / bh.maxLife;
+      
+      // Outer distortion ring
+      ctx.beginPath();
+      ctx.arc(bh.x, bh.y, bh.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(80,40,120,${alpha * 0.5})`;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      
+      // Inner void
+      ctx.beginPath();
+      ctx.arc(bh.x, bh.y, bh.radius * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(20,10,40,${alpha})`;
+      ctx.fill();
+      
+      // Event horizon
+      ctx.beginPath();
+      ctx.arc(bh.x, bh.y, bh.radius * 0.15, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      ctx.fill();
     }
   }
 
@@ -305,11 +529,16 @@ export function startGame() {
 
   function checkBulletCollisions() {
     for (let i = bullets.length - 1; i >= 0; i--) {
-      const bullet = bullets[i];
+      const bullet = bullets[i] as any;
       for (const entity of entities) {
         if (entity.destroyed && entity.alpha <= 0) continue;
         if (bullet.x >= entity.x && bullet.x <= entity.x + entity.width && bullet.y >= entity.y && bullet.y <= entity.y + entity.height) {
-          if (!entity.destroyed) destroyEntity(entity);
+          if (bullet.isBlackHole) {
+            // Detonate black hole at impact point
+            detonateBlackHole(bullet.x, bullet.y);
+          } else {
+            if (!entity.destroyed) destroyEntity(entity);
+          }
           bullets.splice(i, 1);
           break;
         }
@@ -395,6 +624,25 @@ export function startGame() {
     }
     if (ship.thrust) { const pulse = 0.4 + 0.3 * Math.sin(gameTime * 12); ctx.beginPath(); ctx.arc(0, pos[3].y + 6, 5, 0, Math.PI * 2); ctx.fillStyle = `rgba(187,154,221,${pulse})`; ctx.fill(); }
     ctx.restore();
+    
+    // Draw "armed" indicator when bomb is ready
+    if (hasBlackHoleBomb) {
+      const pulse = 0.7 + 0.3 * Math.sin(gameTime * 6);
+      ctx.save();
+      ctx.font = `bold 14px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      // Glow layers
+      ctx.fillStyle = `rgba(120,80,180,${pulse * 0.4})`;
+      ctx.fillText('ARMED', ship.x - 1, ship.y - 35);
+      ctx.fillText('ARMED', ship.x + 1, ship.y - 35);
+      ctx.fillText('ARMED', ship.x, ship.y - 34);
+      ctx.fillText('ARMED', ship.x, ship.y - 36);
+      // Main text
+      ctx.fillStyle = `rgba(180,140,220,${pulse})`;
+      ctx.fillText('ARMED', ship.x, ship.y - 35);
+      ctx.restore();
+    }
   }
 
   function drawBullets() {
@@ -470,12 +718,17 @@ export function startGame() {
       updateShip(dt); 
       updateBullets(dt); 
       updateEntities(dt); 
-      updateParticles(dt); 
-      checkBulletCollisions(); 
+      updateParticles(dt);
+      updatePickups(dt);
+      updateBlackHoles(dt);
+      checkBulletCollisions();
+      checkUpgrades();
       checkVictory();
       updateVictory();
       drawBackground(); 
-      drawEntities(); 
+      drawEntities();
+      drawBlackHoles();
+      drawPickups();
       drawParticles(); 
       drawBullets(); 
       if (!victoryTriggered) drawShip();
