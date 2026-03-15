@@ -420,6 +420,9 @@ const { ...headTags } = Astro.props;
                 secret.classList.add('visible');
               }
             }
+          } else if (e.deltaY < 0) { // Scrolling up
+            secret.classList.remove('visible');
+            overscrollCount = 0;
           }
         }, { passive: true });
         
@@ -441,6 +444,9 @@ const { ...headTags } = Astro.props;
                 secret.classList.add('visible');
               }
             }
+          } else if (touchY > lastTouchY) { // Swiping down (scrolling up)
+            secret.classList.remove('visible');
+            overscrollCount = 0;
           }
           lastTouchY = touchY;
         }, { passive: true });
