@@ -22,15 +22,13 @@ export function startGame() {
   let lastTime = 0;
   let gameTime = 0;
   let backgroundCanvas: HTMLCanvasElement | null = null;
-  let scrollbarWidth = 0;
-  let originalBodyPaddingRight = '';
-  let originalPagePaddingRight = '';
   
   interface Entity {
     id: number; text: string; x: number; y: number;
     width: number; height: number; font: string; color: string;
     vx: number; vy: number; rotation: number; rotationSpeed: number;
     destroyed: boolean; alpha: number;
+    edge?: boolean; // mostly off-screen — rendered but doesn't count for victory
   }
   let entities: Entity[] = [];
 
@@ -88,6 +86,14 @@ export function startGame() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
+  // Intro state
+  let introActive = false;
+  let introTime = 0;
+  const introDuration = 1.2; // seconds for ship to fly in
+  let introShipStartY = 0;
+  let introShipEndY = 0;
+  let domHidden = false;
+
   function extractCharacterEntities(): void {
     loadingEl.classList.add('active');
     const starsCanvas = document.getElementById('stars') as HTMLCanvasElement;
@@ -143,7 +149,19 @@ export function startGame() {
         } catch (e) { continue; }
       }
     }
-    mainContent.style.visibility = 'hidden';
+    // Drop fully off-screen entities; mark ones barely clipping the edge
+    // so they still render but don't block victory
+    const edgeMargin = 10;
+    entities = entities.filter(e => {
+      const visX = Math.min(e.x + e.width, w) - Math.max(e.x, 0);
+      const visY = Math.min(e.y + e.height, h) - Math.max(e.y, 0);
+      if (visX <= 0 || visY <= 0) return false;
+      if (visX < edgeMargin || visY < edgeMargin) e.edge = true;
+      return true;
+    });
+
+    // Don't hide DOM content yet — we'll hide it after the first canvas frame
+    // is painted so there's never a gap where neither is visible
     loadingEl.classList.remove('active');
     entitiesReady = true;
   }
@@ -157,30 +175,41 @@ export function startGame() {
     document.body.appendChild(hud);
     document.body.appendChild(loadingEl);
     
-    // Compensate for scrollbar removal to prevent layout shift
-    scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const pageEl = document.querySelector('.page') as HTMLElement;
-    
-    // Store original padding values
-    originalBodyPaddingRight = document.body.style.paddingRight;
-    if (pageEl) originalPagePaddingRight = pageEl.style.paddingRight;
-    
-    // Get computed padding and add scrollbar width
-    const bodyComputedPadding = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
-    const pageComputedPadding = pageEl ? parseFloat(getComputedStyle(pageEl).paddingRight) || 0 : 0;
-    
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = `${bodyComputedPadding + scrollbarWidth}px`;
-    if (pageEl) pageEl.style.paddingRight = `${pageComputedPadding + scrollbarWidth}px`;
-    
-    canvas.classList.add('active');
-    extractCharacterEntities();
-    ship.x = w / 2; ship.y = h - 100; ship.vx = 0; ship.vy = 0;
     score = 0; scoreValue.textContent = '0'; gameTime = 0;
-    hud.classList.add('active');
     lastTime = performance.now();
+    beginIntro();
+  }
+
+  // Lock scroll position without removing the scrollbar (prevents layout shift)
+  let scrollLockY = 0;
+  function onScrollLock() { window.scrollTo(0, scrollLockY); }
+
+  function beginIntro() {
+    // Lock scroll in place — the scrollbar stays, so zero layout shift
+    scrollLockY = window.scrollY;
+    window.addEventListener('scroll', onScrollLock);
+
+    // Skip the CSS opacity transition so canvas appears instantly over the DOM —
+    // no fade means no frame where both are visible
+    canvas.style.transition = 'none';
+    canvas.classList.add('active');
+    // Force style recalc, then restore transition for the exit fade-out
+    canvas.offsetHeight;
+    canvas.style.transition = '';
+
+    extractCharacterEntities();
+
+    // Ship starts below the screen and flies to center
+    ship.x = w / 2;
+    introShipStartY = h + 80;
+    introShipEndY = h / 2;
+    ship.y = introShipStartY;
+    ship.vx = 0; ship.vy = 0;
+    ship.angle = -Math.PI / 2; // pointing up
+    introActive = true;
+    introTime = 0;
+
     animId = requestAnimationFrame(gameLoop);
-    flashScreen();
   }
 
   function deactivateShipMode() {
@@ -191,27 +220,83 @@ export function startGame() {
     canvas.classList.remove('active');
     hud.classList.remove('active');
     
-    // Restore scrollbar and original padding
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = originalBodyPaddingRight;
-    const pageEl = document.querySelector('.page') as HTMLElement;
-    if (pageEl) pageEl.style.paddingRight = originalPagePaddingRight;
+    // Unlock scrolling
+    window.removeEventListener('scroll', onScrollLock);
     
     const mainContent = document.querySelector('main') as HTMLElement;
     if (mainContent) mainContent.style.visibility = '';
     entities = []; bullets.length = 0; particles.length = 0; backgroundCanvas = null;
     pickups.length = 0; blackHoles.length = 0;
     victoryTriggered = false; victoryTime = 0; victoryMessage = "";
+    introActive = false; introTime = 0; domHidden = false;
     spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
   }
 
-  function flashScreen() {
-    const flash = document.createElement('div');
-    flash.style.cssText = `position:fixed;inset:0;background:rgba(100,200,150,0.3);z-index:10003;pointer-events:none;animation:flash-out 0.4s ease-out forwards;`;
-    document.body.appendChild(flash);
-    setTimeout(() => flash.remove(), 400);
+  const glitchDuration = 0.45; // seconds of distortion at intro start
+
+  function drawGlitchOverlay(t: number) {
+    // t goes from 0→1 over glitchDuration
+    const intensity = 1 - t * t; // fade out quadratically
+
+    // --- Horizontal slice displacement (VHS tracking) ---
+    const sliceCount = 8 + Math.floor(Math.random() * 12);
+    for (let i = 0; i < sliceCount; i++) {
+      const y = Math.random() * h;
+      const sliceH = 2 + Math.random() * (20 * intensity);
+      const offset = (Math.random() - 0.5) * 40 * intensity;
+      // Grab a horizontal strip and redraw it shifted
+      if (Math.abs(offset) > 1) {
+        const imgData = ctx.getImageData(0, Math.max(0, y) * dpr, w * dpr, Math.min(sliceH, h - y) * dpr);
+        ctx.putImageData(imgData, offset * dpr, Math.max(0, y) * dpr);
+      }
+    }
+
+    // --- Noise bands (horizontal static bars) ---
+    const bandCount = Math.floor(3 * intensity + Math.random() * 4 * intensity);
+    for (let i = 0; i < bandCount; i++) {
+      const y = Math.random() * h;
+      const bandH = 1 + Math.random() * 4;
+      ctx.fillStyle = `rgba(187, 154, 221, ${(0.08 + Math.random() * 0.15) * intensity})`;
+      ctx.fillRect(0, y, w, bandH);
+    }
+
+    // --- Chromatic aberration (red/cyan shift) ---
+    if (intensity > 0.3) {
+      const shift = Math.floor(3 * intensity + Math.random() * 3);
+      const frame = ctx.getImageData(0, 0, w * dpr, h * dpr);
+      const shifted = ctx.createImageData(frame);
+      const d = frame.data, s = shifted.data;
+      const stride = w * dpr * 4;
+      for (let row = 0; row < h * dpr; row++) {
+        for (let col = 0; col < w * dpr; col++) {
+          const idx = row * stride + col * 4;
+          // Red channel shifted right
+          const rSrc = row * stride + Math.min(col + shift, w * dpr - 1) * 4;
+          // Blue channel shifted left
+          const bSrc = row * stride + Math.max(col - shift, 0) * 4;
+          s[idx] = d[rSrc];         // R from shifted pos
+          s[idx + 1] = d[idx + 1];  // G stays
+          s[idx + 2] = d[bSrc + 2]; // B from shifted pos
+          s[idx + 3] = d[idx + 3];  // A stays
+        }
+      }
+      ctx.putImageData(shifted, 0, 0);
+    }
+
+    // --- Scanlines ---
+    ctx.fillStyle = `rgba(0, 0, 0, ${0.06 * intensity})`;
+    for (let y = 0; y < h; y += 3) {
+      ctx.fillRect(0, y, w, 1);
+    }
+
+    // --- Brief bright flash in first 30% ---
+    if (t < 0.3) {
+      const flashAlpha = (0.3 - t) / 0.3 * 0.25;
+      ctx.fillStyle = `rgba(160, 128, 196, ${flashAlpha})`;
+      ctx.fillRect(0, 0, w, h);
+    }
   }
 
   function spawnExplosion(x: number, y: number, entityWidth = 20, entityHeight = 20, color = 'rgba(208,216,234,1)') {
@@ -294,7 +379,9 @@ export function startGame() {
 
   function checkVictory() {
     if (victoryTriggered || !entitiesReady) return;
-    const remaining = entities.filter(e => !e.destroyed).length;
+    // Edge entities (barely clipping viewport) don't count — they're there
+    // visually but shouldn't block the win
+    const remaining = entities.filter(e => !e.destroyed && !e.edge).length;
     if (remaining === 0 && entities.length > 0) {
       triggerVictory();
       // Hide the HUD for cleaner victory screen
@@ -712,29 +799,79 @@ export function startGame() {
     }
   }
 
+  function updateIntro(dt: number) {
+    introTime += dt;
+    // Ease out cubic
+    const t = Math.min(1, introTime / introDuration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    ship.y = introShipStartY + (introShipEndY - introShipStartY) * eased;
+
+    // Engine exhaust particles during fly-in
+    if (Math.random() > 0.2) {
+      const exhaust = ship.angle + Math.PI + (Math.random() - 0.5) * 0.6;
+      const spd = 100 + Math.random() * 120;
+      particles.push({
+        x: ship.x + (Math.random() - 0.5) * 6,
+        y: ship.y + 14, // behind the ship (pointing up)
+        vx: Math.cos(exhaust) * spd * 0.3,
+        vy: Math.sin(exhaust) * spd + 60,
+        life: 1, maxLife: 0.4 + Math.random() * 0.3,
+        color: 'rgba(187,154,221,1)',
+        radius: 1.5 + Math.random() * 1.5
+      });
+    }
+
+    if (t >= 1) {
+      introActive = false;
+      ship.y = introShipEndY;
+      hud.classList.add('active');
+    }
+  }
+
   function gameLoop(now: number) {
     const dt = Math.min((now - lastTime) / 1000, 0.1); lastTime = now; gameTime += dt;
-    if (entitiesReady) { 
-      updateShip(dt); 
-      updateBullets(dt); 
-      updateEntities(dt); 
-      updateParticles(dt);
-      updatePickups(dt);
-      updateBlackHoles(dt);
-      checkBulletCollisions();
-      checkUpgrades();
-      checkVictory();
-      updateVictory();
-      drawBackground(); 
-      drawEntities();
-      drawBlackHoles();
-      drawPickups();
-      drawParticles(); 
-      drawBullets(); 
-      if (!victoryTriggered) drawShip();
-      drawVictory();
+    if (entitiesReady) {
+      if (introActive) {
+        // Intro phase: ship flies in, no player control
+        updateIntro(dt);
+        updateParticles(dt);
+        drawBackground();
+        drawEntities();
+        drawParticles();
+        drawShip();
+        // VHS glitch overlay masks the DOM→canvas transition
+        if (introTime < glitchDuration) {
+          drawGlitchOverlay(introTime / glitchDuration);
+        }
+      } else {
+        // Normal gameplay
+        updateShip(dt); 
+        updateBullets(dt); 
+        updateEntities(dt); 
+        updateParticles(dt);
+        updatePickups(dt);
+        updateBlackHoles(dt);
+        checkBulletCollisions();
+        checkUpgrades();
+        checkVictory();
+        updateVictory();
+        drawBackground(); 
+        drawEntities();
+        drawBlackHoles();
+        drawPickups();
+        drawParticles(); 
+        drawBullets(); 
+        if (!victoryTriggered) drawShip();
+        drawVictory();
+      }
     }
     else { ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0, 0, w, h); }
+    // Hide DOM after the first canvas frame is painted so there's no visible gap
+    if (!domHidden && entitiesReady) {
+      domHidden = true;
+      const mainContent = document.querySelector('main') as HTMLElement;
+      if (mainContent) mainContent.style.visibility = 'hidden';
+    }
     if (shipModeActive) animId = requestAnimationFrame(gameLoop);
   }
 
