@@ -212,45 +212,117 @@ export function startGame(onDeactivate?: () => void) {
     animId = requestAnimationFrame(gameLoop);
   }
 
-  function deactivateShipMode() {
-    if (!shipModeActive) return;
+  let outroActive = false;
+  let outroTime = 0;
+  let domRevealed = false;
+  const outroDuration = 0.5;
+
+  function cleanupShipMode() {
     shipModeActive = false; entitiesReady = false;
     window.removeEventListener('resize', resize);
     if (animId !== null) { cancelAnimationFrame(animId); animId = null; }
+    canvas.style.opacity = '';
     canvas.classList.remove('active');
     hud.classList.remove('active');
-    
+
     // Unlock scrolling
     window.removeEventListener('scroll', onScrollLock);
-    
+
     const mainContent = document.querySelector('main') as HTMLElement;
     if (mainContent) mainContent.style.visibility = '';
     entities = []; bullets.length = 0; particles.length = 0; backgroundCanvas = null;
     pickups.length = 0; blackHoles.length = 0;
     victoryTriggered = false; victoryTime = 0; victoryMessage = "";
     introActive = false; introTime = 0; domHidden = false;
+    outroActive = false; outroTime = 0; domRevealed = false;
     spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
     onDeactivate?.();
   }
 
-  const glitchDuration = 0.45; // seconds of distortion at intro start
+  function deactivateShipMode(instant = false) {
+    if (!shipModeActive || outroActive) return;
+    if (instant) { cleanupShipMode(); return; }
 
-  function drawGlitchOverlay(t: number) {
-    // t goes from 0→1 over glitchDuration
-    const intensity = 1 - t * t; // fade out quadratically
+    outroActive = true;
+    outroTime = 0;
+    hud.classList.remove('active');
+
+    // DOM stays hidden — we reveal it partway through once distortion is heavy enough
+    if (animId !== null) { cancelAnimationFrame(animId); animId = null; }
+    lastTime = performance.now();
+    animId = requestAnimationFrame(outroLoop);
+  }
+
+  function outroLoop(now: number) {
+    try {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+      outroTime += dt;
+      const t = Math.min(1, outroTime / outroDuration);
+
+      // Redraw the game frame (frozen — no updates)
+      drawBackground();
+      drawEntities();
+      drawParticles();
+      drawBullets();
+      drawShip();
+
+      // Glitch distortion ramps UP (reverse of intro)
+      const intensity = t * t;
+      drawGlitchDistortion(intensity);
+
+      // Phase 1 (0–0.6): pure glitch ramp, canvas stays fully opaque
+      // Phase 2 (0.6–1.0): reveal DOM, fade canvas out with purple flash
+      if (t > 0.6) {
+        // Reveal DOM once distortion is heavy enough to mask the swap
+        if (!domRevealed) {
+          domRevealed = true;
+          const mainContent = document.querySelector('main') as HTMLElement;
+          if (mainContent) mainContent.style.visibility = '';
+        }
+
+        const fadeT = (t - 0.6) / 0.4; // 0→1 over the fade phase
+        const flashAlpha = fadeT * 0.35;
+        ctx.fillStyle = `rgba(160, 128, 196, ${flashAlpha})`;
+        ctx.fillRect(0, 0, w, h);
+
+        canvas.style.opacity = `${1 - fadeT * fadeT}`;
+      }
+
+      if (t >= 1) {
+        cleanupShipMode();
+        return;
+      }
+
+      animId = requestAnimationFrame(outroLoop);
+    } catch (_) {
+      cleanupShipMode();
+    }
+  }
+
+  const glitchDuration = 0.45; // seconds of distortion at intro start
+  let glitchTmp: HTMLCanvasElement | null = null;
+
+  function drawGlitchDistortion(intensity: number) {
+    // intensity 0→1: no distortion → full distortion
 
     // --- Horizontal slice displacement (VHS tracking) ---
-    const sliceCount = 8 + Math.floor(Math.random() * 12);
+    const sliceCount = 8 + Math.floor(Math.random() * 12 * intensity);
     for (let i = 0; i < sliceCount; i++) {
-      const y = Math.random() * h;
-      const sliceH = 2 + Math.random() * (20 * intensity);
+      const y = Math.floor(Math.random() * h);
+      const sliceH = Math.max(1, Math.floor(2 + Math.random() * (20 * intensity)));
       const offset = (Math.random() - 0.5) * 40 * intensity;
-      // Grab a horizontal strip and redraw it shifted
       if (Math.abs(offset) > 1) {
-        const imgData = ctx.getImageData(0, Math.max(0, y) * dpr, w * dpr, Math.min(sliceH, h - y) * dpr);
-        ctx.putImageData(imgData, offset * dpr, Math.max(0, y) * dpr);
+        const srcY = Math.max(0, y * dpr);
+        const srcH = Math.min(sliceH * dpr, h * dpr - srcY);
+        if (srcH > 0) {
+          try {
+            const imgData = ctx.getImageData(0, srcY, w * dpr, srcH);
+            ctx.putImageData(imgData, offset * dpr, srcY);
+          } catch (_) { /* skip this slice */ }
+        }
       }
     }
 
@@ -263,27 +335,25 @@ export function startGame(onDeactivate?: () => void) {
       ctx.fillRect(0, y, w, bandH);
     }
 
-    // --- Chromatic aberration (red/cyan shift) ---
+    // --- Chromatic aberration (color channel offset via compositing) ---
     if (intensity > 0.3) {
-      const shift = Math.floor(3 * intensity + Math.random() * 3);
-      const frame = ctx.getImageData(0, 0, w * dpr, h * dpr);
-      const shifted = ctx.createImageData(frame);
-      const d = frame.data, s = shifted.data;
-      const stride = w * dpr * 4;
-      for (let row = 0; row < h * dpr; row++) {
-        for (let col = 0; col < w * dpr; col++) {
-          const idx = row * stride + col * 4;
-          // Red channel shifted right
-          const rSrc = row * stride + Math.min(col + shift, w * dpr - 1) * 4;
-          // Blue channel shifted left
-          const bSrc = row * stride + Math.max(col - shift, 0) * 4;
-          s[idx] = d[rSrc];         // R from shifted pos
-          s[idx + 1] = d[idx + 1];  // G stays
-          s[idx + 2] = d[bSrc + 2]; // B from shifted pos
-          s[idx + 3] = d[idx + 3];  // A stays
-        }
+      const shift = Math.round(2 * intensity + Math.random() * 2);
+      // Snapshot current frame to a temp canvas to avoid self-referencing draws
+      if (!glitchTmp) {
+        glitchTmp = document.createElement('canvas');
       }
-      ctx.putImageData(shifted, 0, 0);
+      glitchTmp.width = canvas.width;
+      glitchTmp.height = canvas.height;
+      const tmpCtx = glitchTmp.getContext('2d')!;
+      tmpCtx.drawImage(canvas, 0, 0);
+      // Draw offset copies with lighter blending
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.12 * intensity;
+      ctx.drawImage(glitchTmp, shift, 0);
+      ctx.globalAlpha = 0.08 * intensity;
+      ctx.drawImage(glitchTmp, -shift, 0);
+      ctx.restore();
     }
 
     // --- Scanlines ---
@@ -291,13 +361,26 @@ export function startGame(onDeactivate?: () => void) {
     for (let y = 0; y < h; y += 3) {
       ctx.fillRect(0, y, w, 1);
     }
+  }
 
-    // --- Brief bright flash in first 30% ---
+  function drawGlitchOverlay(t: number) {
+    // t goes from 0→1 over glitchDuration — intro: distortion fades out
+    const intensity = 1 - t * t;
+    drawGlitchDistortion(intensity);
+
+    // Brief bright flash in first 30%
     if (t < 0.3) {
       const flashAlpha = (0.3 - t) / 0.3 * 0.25;
       ctx.fillStyle = `rgba(160, 128, 196, ${flashAlpha})`;
       ctx.fillRect(0, 0, w, h);
     }
+  }
+
+  function flashScreen() {
+    const flash = document.createElement('div');
+    flash.style.cssText = `position:fixed;inset:0;background:rgba(160,128,196,0.3);z-index:10003;pointer-events:none;animation:flash-out 0.4s ease-out forwards;`;
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 400);
   }
 
   function spawnExplosion(x: number, y: number, entityWidth = 20, entityHeight = 20, color = 'rgba(208,216,234,1)') {
@@ -888,8 +971,8 @@ export function startGame(onDeactivate?: () => void) {
   // Start the game immediately
   document.addEventListener('keydown', handleKeyDown);
   document.addEventListener('keyup', handleKeyUp);
-  document.addEventListener('astro:before-swap', function cleanup() { 
-    deactivateShipMode(); 
+  document.addEventListener('astro:before-swap', function cleanup() {
+    deactivateShipMode(true);
     document.removeEventListener('keydown', handleKeyDown); 
     document.removeEventListener('keyup', handleKeyUp); 
     document.removeEventListener('astro:before-swap', cleanup); 
