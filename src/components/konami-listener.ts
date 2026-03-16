@@ -17,7 +17,9 @@ function handleKeyDown(e: KeyboardEvent) {
     if (konamiIndex === KONAMI_CODE.length) {
       konamiIndex = 0;
       gameStarted = true;
-      import('./konami-game').then(({ startGame }) => startGame());
+      import('./konami-game').then(({ startGame }) => {
+        startGame(() => { gameStarted = false; });
+      });
     }
   } else {
     konamiIndex = 0;

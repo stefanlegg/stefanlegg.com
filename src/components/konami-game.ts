@@ -3,7 +3,7 @@
  * Dynamically imported only when the konami code is entered.
  */
 
-export function startGame() {
+export function startGame(onDeactivate?: () => void) {
   let shipModeActive = false;
   let entitiesReady = false;
 
@@ -232,6 +232,7 @@ export function startGame() {
     spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
+    onDeactivate?.();
   }
 
   const glitchDuration = 0.45; // seconds of distortion at intro start
