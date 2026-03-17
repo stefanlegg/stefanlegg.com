@@ -62,6 +62,10 @@ export function startGame(onDeactivate?: () => void) {
   interface BlackHole { x: number; y: number; radius: number; maxRadius: number; life: number; maxLife: number; sucking: boolean; }
   const blackHoles: BlackHole[] = [];
 
+  // Fire rate
+  let fireCooldown = 0;
+  const fireRate = 0.15; // seconds between shots
+
   // Victory state
   let victoryTriggered = false;
   let victoryTime = 0;
@@ -235,7 +239,7 @@ export function startGame(onDeactivate?: () => void) {
     victoryTriggered = false; victoryTime = 0; victoryMessage = "";
     introActive = false; introTime = 0; domHidden = false;
     outroActive = false; outroTime = 0; domRevealed = false;
-    spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0;
+    spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0; fireCooldown = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
     onDeactivate?.();
@@ -929,7 +933,12 @@ export function startGame(onDeactivate?: () => void) {
         }
       } else {
         // Normal gameplay
-        updateShip(dt); 
+        updateShip(dt);
+        fireCooldown -= dt;
+        if (keys['Space'] && fireCooldown <= 0 && !victoryTriggered) {
+          shoot();
+          fireCooldown = fireRate;
+        }
         updateBullets(dt); 
         updateEntities(dt); 
         updateParticles(dt);
@@ -963,7 +972,10 @@ export function startGame(onDeactivate?: () => void) {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) e.preventDefault();
     if (e.code === 'Escape') { deactivateShipMode(); return; }
     keys[e.code] = true;
-    if (e.code === 'Space') shoot();
+    if (e.code === 'Space' && fireCooldown <= 0 && !victoryTriggered) {
+      shoot();
+      fireCooldown = fireRate;
+    }
   }
 
   function handleKeyUp(e: KeyboardEvent) { keys[e.code] = false; }
