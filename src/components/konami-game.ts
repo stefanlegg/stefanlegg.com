@@ -267,7 +267,7 @@ export function startGame(onDeactivate?: () => void) {
       drawEntities();
       drawParticles();
       drawBullets();
-      drawShip();
+      if (!victoryTriggered) drawShip();
 
       // Glitch distortion ramps UP (reverse of intro)
       const intensity = t * t;
