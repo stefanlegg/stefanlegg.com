@@ -8,7 +8,9 @@
 		"build": "npx astro build",
 		"preview": "bunx --bun astro preview",
 		"check": "bunx --bun astro check",
-		"astro": "bunx --bun astro"
+		"astro": "bunx --bun astro",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@astrojs/sitemap": "^3.4.0",
@@ -24,7 +26,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@types/bun": "^1.2.13"
+		"@types/bun": "^1.2.13",
+		"vitest": "^4.1.0"
 	},
 	"private": true,
 	"peerDependencies": {
