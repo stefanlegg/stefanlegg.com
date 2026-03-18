@@ -2,15 +2,20 @@
 import { getCollection } from "astro:content";
 
 import PostCard from "@/components/PostCard.astro";
-import ProjectCard from "@/components/ProjectCard.astro";
 import SocialLinks from "@/components/SocialLinks.astro";
 import Layout from "@/layouts/Layout.astro";
 
-import projects from "@/data/projects";
+import work from "@/data/work";
 
 const posts = (await getCollection("posts")).sort(
 	(first, second) => second.data.publishedAt.getTime() - first.data.publishedAt.getTime(),
 );
+
+const companies = [...new Set(work.map((w) => w.company))];
+const grouped = companies.map((company) => ({
+	company,
+	items: work.filter((w) => w.company === company),
+}));
 ---
 
 <Layout>
@@ -29,9 +34,25 @@ const posts = (await getCollection("posts")).sort(
 
   <div class="section" style="animation-delay: 0.6s;">
     <h2 class="section-label">Work</h2>
-    <div class="project-list">
-      {projects.map((project, index) => (
-        <ProjectCard {...project} index={index} />
+    <div class="changelog">
+      {grouped.map((group) => (
+        <div class="changelog-group">
+          <div class="changelog-company">
+            <span class="changelog-company-text">{group.company}</span>
+          </div>
+          <div class="changelog-entries">
+            {group.items.map((item) => (
+              <a href={item.link} target="_blank" rel="noopener noreferrer" class="changelog-entry">
+                <div class="changelog-title-row">
+                  <span class="changelog-name">{item.title}</span>
+                  <span class="changelog-arrow">&nearr;</span>
+                </div>
+                <p class="changelog-desc">{item.description}</p>
+                <span class="changelog-techs">{item.techs.join(" · ")}</span>
+              </a>
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   </div>
@@ -112,9 +133,7 @@ const posts = (await getCollection("posts")).sort(
     text-decoration: none;
     transition: color 0.2s ease;
   }
-  .shopify-link:hover {
-    color: #8bba6a;
-  }
+  .shopify-link:hover { color: #8bba6a; }
 
   .section {
     padding: 48px 0;
@@ -135,7 +154,80 @@ const posts = (await getCollection("posts")).sort(
   }
   .section-text :global(strong) { color: var(--text-strong); font-weight: 500; }
 
-  .project-list { display: flex; flex-direction: column; }
+  .changelog { display: flex; flex-direction: column; gap: 0; }
+
+  .changelog-group { }
+  .changelog-group + .changelog-group { margin-top: 32px; }
+
+  .changelog-company {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .changelog-company-text {
+    font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+  .changelog-company::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent 80%);
+    opacity: 0.3;
+  }
+
+  .changelog-entries {
+    border-left: 2px solid var(--text-rule);
+    padding-left: 24px;
+    display: flex; flex-direction: column;
+  }
+
+  .changelog-entry {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 18px 0;
+    text-decoration: none; color: inherit;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .changelog-entry + .changelog-entry {
+    border-top: 1px solid rgba(208, 216, 234, 0.05);
+  }
+  .changelog-entry:hover {
+    transform: translateX(6px);
+  }
+  .changelog-entry:hover .changelog-name { color: var(--accent-bright); }
+
+  /* accent bar glow on hover */
+  .changelog-entries {
+    transition: border-color 0.3s;
+  }
+
+  .changelog-title-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  }
+
+  .changelog-name {
+    font-size: 24px; font-weight: 500; color: var(--text);
+    transition: color 0.2s;
+  }
+
+  .changelog-arrow {
+    font-size: 15px; color: var(--text-muted);
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .changelog-entry:hover .changelog-arrow {
+    color: var(--accent-bright);
+    transform: translate(2px, -2px);
+  }
+
+  .changelog-desc {
+    font-size: 19px; font-weight: 300; line-height: 1.7;
+    color: var(--text-body);
+  }
+
+  .changelog-techs {
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--text-label); letter-spacing: 0.5px;
+  }
 
   .footer {
     padding: 28px 0 40px;
@@ -148,6 +240,8 @@ const posts = (await getCollection("posts")).sort(
   @media (max-width: 600px) {
     .hero { padding: 40px 0 36px; }
     .hero-name { font-size: 36px; }
+    .changelog-entries { padding-left: 16px; }
+    .changelog-name { font-size: 20px; }
     .footer { flex-direction: column; gap: 6px; text-align: center; }
   }
 </style>
