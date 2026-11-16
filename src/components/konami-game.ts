@@ -14,6 +14,7 @@ export function startGame(onDeactivate?: () => void) {
   const loadingEl = document.getElementById('capture-loading') as HTMLDivElement;
   if (!canvas || !hud) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  const previousFocus = document.activeElement;
 
   let w = 0, h = 0;
   let dpr = 1;
@@ -222,7 +223,12 @@ export function startGame(onDeactivate?: () => void) {
   const outroDuration = 0.5;
 
   function cleanupShipMode() {
+    if (!shipModeActive) return;
     shipModeActive = false; entitiesReady = false;
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('keyup', handleKeyUp);
+    document.removeEventListener('astro:before-swap', handleBeforeSwap);
+    for (const key of Object.keys(keys)) delete keys[key];
     window.removeEventListener('resize', resize);
     if (animId !== null) { cancelAnimationFrame(animId); animId = null; }
     canvas.style.opacity = '';
@@ -242,12 +248,16 @@ export function startGame(onDeactivate?: () => void) {
     spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0; fireCooldown = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
+    if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+      previousFocus.focus({ preventScroll: true });
+    }
     onDeactivate?.();
   }
 
   function deactivateShipMode(instant = false) {
-    if (!shipModeActive || outroActive) return;
+    if (!shipModeActive) return;
     if (instant) { cleanupShipMode(); return; }
+    if (outroActive) return;
 
     outroActive = true;
     outroTime = 0;
@@ -969,6 +979,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function handleKeyDown(e: KeyboardEvent) {
+    if (!shipModeActive || outroActive) return;
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) e.preventDefault();
     if (e.code === 'Escape') { deactivateShipMode(); return; }
     keys[e.code] = true;
@@ -980,15 +991,14 @@ export function startGame(onDeactivate?: () => void) {
 
   function handleKeyUp(e: KeyboardEvent) { keys[e.code] = false; }
 
+  function handleBeforeSwap() {
+    deactivateShipMode(true);
+  }
+
   // Start the game immediately
   document.addEventListener('keydown', handleKeyDown);
   document.addEventListener('keyup', handleKeyUp);
-  document.addEventListener('astro:before-swap', function cleanup() {
-    deactivateShipMode(true);
-    document.removeEventListener('keydown', handleKeyDown); 
-    document.removeEventListener('keyup', handleKeyUp); 
-    document.removeEventListener('astro:before-swap', cleanup); 
-  }, { once: true });
+  document.addEventListener('astro:before-swap', handleBeforeSwap, { once: true });
 
   activateShipMode();
 }
