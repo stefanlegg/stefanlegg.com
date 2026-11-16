@@ -69,4 +69,8 @@
 
   @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
   @keyframes flash-out { from { opacity: 1; } to { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bomb-indicator, .capture-text { animation: none; }
+  }
 </style>

@@ -15,6 +15,7 @@ export function startGame(onDeactivate?: () => void) {
   if (!canvas || !hud) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
   const previousFocus = document.activeElement;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let w = 0, h = 0;
   let dpr = 1;
@@ -208,10 +209,11 @@ export function startGame(onDeactivate?: () => void) {
     ship.x = w / 2;
     introShipStartY = h + 80;
     introShipEndY = h / 2;
-    ship.y = introShipStartY;
+    ship.y = reducedMotion.matches ? introShipEndY : introShipStartY;
     ship.vx = 0; ship.vy = 0;
     ship.angle = -Math.PI / 2; // pointing up
-    introActive = true;
+    introActive = !reducedMotion.matches;
+    if (reducedMotion.matches) hud.classList.add('active');
     introTime = 0;
 
     animId = requestAnimationFrame(gameLoop);
@@ -228,6 +230,7 @@ export function startGame(onDeactivate?: () => void) {
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
     document.removeEventListener('astro:before-swap', handleBeforeSwap);
+    reducedMotion.removeEventListener('change', handleMotionChange);
     for (const key of Object.keys(keys)) delete keys[key];
     window.removeEventListener('resize', resize);
     if (animId !== null) { cancelAnimationFrame(animId); animId = null; }
@@ -256,7 +259,7 @@ export function startGame(onDeactivate?: () => void) {
 
   function deactivateShipMode(instant = false) {
     if (!shipModeActive) return;
-    if (instant) { cleanupShipMode(); return; }
+    if (instant || reducedMotion.matches) { cleanupShipMode(); return; }
     if (outroActive) return;
 
     outroActive = true;
@@ -320,6 +323,7 @@ export function startGame(onDeactivate?: () => void) {
   let glitchTmp: HTMLCanvasElement | null = null;
 
   function drawGlitchDistortion(intensity: number) {
+    if (reducedMotion.matches) return;
     // intensity 0→1: no distortion → full distortion
 
     // --- Horizontal slice displacement (VHS tracking) ---
@@ -378,6 +382,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function drawGlitchOverlay(t: number) {
+    if (reducedMotion.matches) return;
     // t goes from 0→1 over glitchDuration — intro: distortion fades out
     const intensity = 1 - t * t;
     drawGlitchDistortion(intensity);
@@ -391,6 +396,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function flashScreen() {
+    if (reducedMotion.matches) return;
     const flash = document.createElement('div');
     flash.style.cssText = `position:fixed;inset:0;background:rgba(160,128,196,0.3);z-index:10003;pointer-events:none;animation:flash-out 0.4s ease-out forwards;`;
     document.body.appendChild(flash);
@@ -398,6 +404,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function spawnExplosion(x: number, y: number, entityWidth = 20, entityHeight = 20, color = 'rgba(208,216,234,1)') {
+    if (reducedMotion.matches) return;
     const size = Math.max(entityWidth, entityHeight);
     const count = Math.min(30, Math.max(12, Math.floor(size / 3)));
     for (let i = 0; i < count; i++) {
@@ -415,6 +422,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function spawnFirework(x: number, y: number) {
+    if (!shipModeActive || reducedMotion.matches) return;
     const colors = [
       'rgba(255,180,120,1)',  // orange
       'rgba(160,128,196,1)',  // purple (site accent)
@@ -839,6 +847,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function drawParticles() {
+    if (reducedMotion.matches) return;
     for (const p of particles) { ctx.beginPath(); ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2); ctx.fillStyle = p.color.replace('1)', `${p.life})`); ctx.fill(); }
   }
 
@@ -991,9 +1000,22 @@ export function startGame(onDeactivate?: () => void) {
 
   function handleKeyUp(e: KeyboardEvent) { keys[e.code] = false; }
 
+  function handleMotionChange() {
+    if (!reducedMotion.matches) return;
+    particles.length = 0;
+    if (outroActive) { cleanupShipMode(); return; }
+    if (introActive) {
+      introActive = false;
+      ship.y = introShipEndY;
+      hud.classList.add('active');
+    }
+  }
+
   function handleBeforeSwap() {
     deactivateShipMode(true);
   }
+
+  reducedMotion.addEventListener('change', handleMotionChange);
 
   // Start the game immediately
   document.addEventListener('keydown', handleKeyDown);
