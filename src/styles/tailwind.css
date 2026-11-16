@@ -16,6 +16,7 @@
 	--accent: #a080c4;
 	--accent-glow: rgba(160, 128, 196, 0.15);
 	--accent-bright: #bb9add;
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * {

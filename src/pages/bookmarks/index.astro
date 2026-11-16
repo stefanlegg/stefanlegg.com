@@ -29,7 +29,6 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 <style>
   .page-header {
     padding: 56px 0 24px;
-    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
   }
   .page-title {
     font-family: var(--font-mono); font-size: 14px; font-weight: 500;
@@ -43,7 +42,6 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 
   .bookmark-list {
     display: flex; flex-direction: column;
-    opacity: 0; animation: fade-up 0.8s ease 0.5s forwards;
   }
   .bookmark-row {
     display: block; text-decoration: none; color: inherit;

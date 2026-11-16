@@ -14,7 +14,7 @@ const { ...headTags } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" transition:animate="none">
   <SEOTags {...headTags} />
   <body>
     <canvas class="stars" id="stars" transition:persist></canvas>
@@ -77,11 +77,6 @@ const { ...headTags } = Astro.props;
   .page {
     max-width: 840px; margin: 0 auto;
     padding: 0 32px 120px; position: relative; z-index: 1;
-  }
-
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (max-width: 600px) {
