@@ -17,7 +17,7 @@ const posts = (await getCollection("posts")).sort(
     {posts.map((post) => (
       <a class="post-row" href={`/posts/${post.slug}`}>
         <div class="post-row-header">
-          <h2 class="post-row-title">{post.data.title}</h2>
+          <h2 class="post-row-title">{post.data.title} <span class="row-arrow" aria-hidden="true">→</span></h2>
           <span class="post-row-date">{formatDate(post.data.publishedAt)}</span>
         </div>
         <p class="post-row-desc">{post.data.description}</p>
@@ -46,21 +46,31 @@ const posts = (await getCollection("posts")).sort(
   .post-row {
     display: block; text-decoration: none; color: inherit;
     padding: 24px 0; border-top: 1px solid var(--text-rule);
-    transition: all 0.3s; position: relative;
+    transition: background-color 160ms ease; position: relative;
   }
-  .post-row::after {
-    content: ''; position: absolute;
-    top: 0; bottom: 0; left: -12px; width: 12px;
+  .post-row:focus-visible { background-color: var(--accent-glow); }
+  .post-row:focus-visible .post-row-title { color: var(--accent-bright); }
+  .row-arrow {
+    display: inline-block; font-family: var(--font-mono); font-size: 15px;
+    color: var(--text-label); margin-left: 8px;
+    transition: transform 160ms var(--ease-out), color 160ms ease;
   }
-  .post-row:hover {
-    transform: translateX(12px);
-    background: linear-gradient(90deg, var(--accent-glow), transparent 60%);
+  @media (hover: hover) and (pointer: fine) {
+    .post-row:hover { background-color: var(--accent-glow); }
+    .post-row:hover .post-row-title { color: var(--accent-bright); }
+    .post-row:hover .row-arrow {
+      color: var(--accent-bright); transform: translateX(2px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row-arrow { transform: none !important; }
   }
   .post-row-header {
     display: flex; justify-content: space-between;
     align-items: baseline; gap: 16px; margin-bottom: 8px;
   }
   .post-row-title {
+    transition: color 160ms ease;
     font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.3;
   }
   .post-row-date {

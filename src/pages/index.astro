@@ -198,16 +198,13 @@ const grouped = companies.map((company) => ({
     display: flex; flex-direction: column; gap: 8px;
     padding: 18px 0;
     text-decoration: none; color: inherit;
-    transition: all 0.2s;
     position: relative;
   }
   .changelog-entry + .changelog-entry {
     border-top: 1px solid rgba(208, 216, 234, 0.05);
   }
-  .changelog-entry:hover {
-    transform: translateX(6px);
-  }
-  .changelog-entry:hover .changelog-name { color: var(--accent-bright); }
+  .changelog-entry:focus-visible .changelog-name { color: var(--accent-bright); }
+  .changelog-entry:focus-visible .changelog-arrow { color: var(--accent-bright); }
 
   /* accent bar glow on hover */
   .changelog-entries {
@@ -220,17 +217,20 @@ const grouped = companies.map((company) => ({
 
   .changelog-name {
     font-size: 24px; font-weight: 500; color: var(--text);
-    transition: color 0.2s;
+    transition: color 160ms ease;
   }
 
   .changelog-arrow {
     font-size: 15px; color: var(--text-muted);
-    transition: color 0.2s, transform 0.2s;
+    transition: color 160ms ease, transform 160ms var(--ease-out);
     flex-shrink: 0;
   }
-  .changelog-entry:hover .changelog-arrow {
-    color: var(--accent-bright);
-    transform: translate(2px, -2px);
+  @media (hover: hover) and (pointer: fine) {
+    .changelog-entry:hover .changelog-name { color: var(--accent-bright); }
+    .changelog-entry:hover .changelog-arrow {
+      color: var(--accent-bright);
+      transform: translate(2px, -2px);
+    }
   }
 
   .changelog-desc {
