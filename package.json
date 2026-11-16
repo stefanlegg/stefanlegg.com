@@ -10,7 +10,8 @@
 		"check": "bunx --bun astro check",
 		"astro": "bunx --bun astro",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test:drafts": "node scripts/check-draft-publishing.mjs"
 	},
 	"dependencies": {
 		"@astrojs/sitemap": "^3.4.0",
