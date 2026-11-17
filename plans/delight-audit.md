@@ -190,3 +190,10 @@ The eight motion categories were covered: purpose/frequency, easing/duration, ph
 | Navigation, sections, footer, reading pages | Static | Immediate | None | None | Remain available alongside the hero |
 
 The hero is a rare/occasional arrival with a delight purpose. Navigation stays static because it is a repeated action; reading content stays still because the visitor is there to read; sections/footer no longer perform offscreen entrances. Feel check: slow-motion review covered the first 240ms of the hero, especially the early readable state (opacity ~0.78 at 60ms, ~0.97 at 120ms) against already-visible navigation and About. Fast navigation replaces the old DOM instead of stacking entrance sequences. Typography and layout were not changed.
+
+
+## Finding 3 refinement: visible route transitions
+
+After local review, the user found navigation too abrupt. Restore a 220ms opacity crossfade on main content while the navigation and sky stay steady. Disable the view-transition group's default geometry animation to avoid morphing between page heights. The homepage hero retains its direct-load entrance; during client navigation the crossfade carries it without a second entrance. Reduced-motion navigation remains usable.
+
+Validation: production build passed. Chromium checks confirmed 220ms incoming/outgoing fades across Home, Posts, and Bookmarks, stationary navigation, no repeated hero entrance, no default group geometry animation, and working reduced-motion navigation without page errors.

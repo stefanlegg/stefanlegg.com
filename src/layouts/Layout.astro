@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ViewTransitions, fade } from "astro:transitions";
 import SEOTags from "@/components/seo/SEOTags.astro";
 import type { HeadTags } from "@/utils/types/HeadTags";
 import Header from "../components/Header.astro";
@@ -23,7 +23,7 @@ const { ...headTags } = Astro.props;
 
     <div class="page">
       <Header />
-      <main>
+      <main transition:name="page-content" transition:animate={fade({ duration: "220ms" })}>
         <slot />
       </main>
     </div>
@@ -41,6 +41,12 @@ const { ...headTags } = Astro.props;
     import { initStarfield } from '@/lib/starfield';
     import { initScrollSecret } from '@/lib/scroll-secret';
 
+    document.addEventListener('astro:before-swap', (event) => {
+      // The route crossfade carries the incoming hero; avoid two entrances.
+      const hero = event.newDocument.querySelector<HTMLElement>('.hero');
+      if (hero) hero.style.animation = 'none';
+    });
+
     document.addEventListener('astro:page-load', () => {
       const canvas = document.getElementById('stars') as HTMLCanvasElement;
       if (canvas) initStarfield(canvas);
@@ -55,6 +61,9 @@ const { ...headTags } = Astro.props;
 </html>
 
 <style is:global>
+  /* Crossfade content without morphing the height of different pages. */
+  ::view-transition-group(page-content) { animation: none; }
+
   /* Star field canvas */
   .stars {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
