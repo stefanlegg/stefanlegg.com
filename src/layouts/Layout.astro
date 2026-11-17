@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ViewTransitions, fade } from "astro:transitions";
 import SEOTags from "@/components/seo/SEOTags.astro";
 import type { HeadTags } from "@/utils/types/HeadTags";
 import Header from "../components/Header.astro";
@@ -14,16 +14,16 @@ const { ...headTags } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" transition:animate="none">
   <SEOTags {...headTags} />
   <body>
     <canvas class="stars" id="stars" transition:persist></canvas>
-    <div class="grain" transition:persist></div>
-    <div class="vignette" transition:persist></div>
+    <div class="grain" transition:persist transition:name="grain" transition:animate="none"></div>
+    <div class="vignette" transition:persist transition:name="vignette" transition:animate="none"></div>
 
     <div class="page">
       <Header />
-      <main>
+      <main transition:name="page-content" transition:animate={fade({ duration: "220ms" })}>
         <slot />
       </main>
     </div>
@@ -41,6 +41,12 @@ const { ...headTags } = Astro.props;
     import { initStarfield } from '@/lib/starfield';
     import { initScrollSecret } from '@/lib/scroll-secret';
 
+    document.addEventListener('astro:before-swap', (event) => {
+      // The route crossfade carries the incoming hero; avoid two entrances.
+      const hero = event.newDocument.querySelector<HTMLElement>('.hero');
+      if (hero) hero.style.animation = 'none';
+    });
+
     document.addEventListener('astro:page-load', () => {
       const canvas = document.getElementById('stars') as HTMLCanvasElement;
       if (canvas) initStarfield(canvas);
@@ -55,6 +61,14 @@ const { ...headTags } = Astro.props;
 </html>
 
 <style is:global>
+  /* Crossfade content without morphing the height of different pages. */
+  ::view-transition-group(page-content) { animation: none; }
+
+  /* Transition snapshots sit above the document. Carry the overlays into that
+     layer too, preserving their normal stacking order without fading them. */
+  ::view-transition-group(vignette) { z-index: 9996; animation: none; }
+  ::view-transition-group(grain) { z-index: 9998; animation: none; }
+
   /* Star field canvas */
   .stars {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -79,18 +93,8 @@ const { ...headTags } = Astro.props;
     padding: 0 32px 120px; position: relative; z-index: 1;
   }
 
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
   @media (max-width: 600px) {
     .page { padding: 0 20px; }
-  }
-
-  /* Hide overscroll hint on touch/mobile devices */
-  @media (pointer: coarse), (hover: none) {
-    .scroll-secret { display: none; }
   }
 
   /* Scroll secret */
@@ -123,4 +127,9 @@ const { ...headTags } = Astro.props;
     opacity: 1;
     transform: translateY(0);
   }
+  /* Hide overscroll hint on touch/mobile devices */
+  @media (pointer: coarse), (hover: none) {
+    .scroll-secret { display: none; }
+  }
+
 </style>

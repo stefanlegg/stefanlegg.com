@@ -18,7 +18,7 @@ async function loadFonts() {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getCollection("posts");
+  const posts = await getCollection("posts", ({ data }) => !data.isDraft);
 
   return posts.map((post) => ({
     params: { slug: post.slug },

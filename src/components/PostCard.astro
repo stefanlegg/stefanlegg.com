@@ -22,11 +22,12 @@ const { title, publishedAt, description, slug, contentType } = Astro.props;
   .post-card {
     display: block; text-decoration: none; color: inherit;
     padding: 20px; margin: 0 -20px;
-    border: 1px solid var(--text-rule); transition: all 0.3s;
+    border: 1px solid var(--text-rule);
+    transition: border-color 160ms ease, background-color 160ms ease;
   }
-  .post-card:hover {
-    border-color: var(--text-faint); background: var(--text-rule);
-    box-shadow: 0 0 24px var(--accent-glow);
+  .post-card:focus-visible { border-color: var(--accent-bright); background-color: var(--accent-glow); }
+  @media (hover: hover) and (pointer: fine) {
+    .post-card:hover { border-color: var(--accent-bright); background-color: var(--accent-glow); }
   }
   .post-title {
     font-size: 28px; font-weight: 500; color: var(--text);

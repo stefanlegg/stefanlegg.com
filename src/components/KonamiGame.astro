@@ -8,21 +8,25 @@
  */
 ---
 
-<canvas id="game-canvas"></canvas>
+<dialog id="game-dialog" tabindex="-1" aria-label="Constellation game" aria-describedby="ship-hint">
+<canvas id="game-canvas" aria-hidden="true"></canvas>
+<button id="game-exit" type="button">Exit game <span aria-hidden="true">Esc</span></button>
+<p id="game-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></p>
 
 <div id="ship-hud">
   <div id="ship-score">SCORE: <span id="score-value">0</span></div>
   <div id="ship-hint">
     <div>ESC to exit</div>
-    <div>Arrows to fly</div>
+    <div>Arrows or W/A/S/D to fly and turn</div>
     <div>Space to shoot</div>
+    <div>Tab to Exit game</div>
   </div>
   <div id="bomb-indicator">● BOMB</div>
 </div>
-
 <div id="capture-loading">
   <div class="capture-text">SCANNING...</div>
 </div>
+</dialog>
 
 <script>
   // Load everything during idle - mirrors client:idle behavior
@@ -33,6 +37,23 @@
 </script>
 
 <style is:global>
+  #game-dialog {
+    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    max-width: none; max-height: none; margin: 0; padding: 0;
+    border: 0; background: transparent; color: var(--text); overflow: hidden;
+  }
+  #game-dialog::backdrop { background: transparent; }
+  #game-exit {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100005;
+    min-height: 44px; padding: 8px 14px; border-radius: 6px;
+    border: 1px solid var(--text-label); background: var(--bg);
+    color: var(--text); font: 14px var(--font-mono); cursor: pointer;
+  }
+  #game-exit span { color: var(--text-label); margin-left: 8px; }
+  #game-exit:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 4px; }
+  @media (hover: hover) and (pointer: fine) {
+    #game-exit:hover { border-color: var(--accent-bright); }
+  }
   #game-canvas {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     z-index: 99999; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
@@ -69,4 +90,8 @@
 
   @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
   @keyframes flash-out { from { opacity: 1; } to { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bomb-indicator, .capture-text { animation: none; }
+  }
 </style>

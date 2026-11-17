@@ -12,8 +12,13 @@ export function startGame(onDeactivate?: () => void) {
   const scoreValue = document.getElementById('score-value') as HTMLSpanElement;
   const bombIndicator = document.getElementById('bomb-indicator') as HTMLDivElement;
   const loadingEl = document.getElementById('capture-loading') as HTMLDivElement;
-  if (!canvas || !hud) return;
+  const dialog = document.getElementById('game-dialog') as HTMLDialogElement;
+  const exitButton = document.getElementById('game-exit') as HTMLButtonElement;
+  const status = document.getElementById('game-status') as HTMLParagraphElement;
+  if (!canvas || !hud || !dialog || !exitButton || !status) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  const previousFocus = document.activeElement;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let w = 0, h = 0;
   let dpr = 1;
@@ -175,9 +180,9 @@ export function startGame(onDeactivate?: () => void) {
     shipModeActive = true;
     resize();
     window.addEventListener('resize', resize);
-    document.body.appendChild(canvas);
-    document.body.appendChild(hud);
-    document.body.appendChild(loadingEl);
+    dialog.showModal();
+    dialog.focus({ preventScroll: true });
+    status.textContent = 'Game started. Fly and shoot to clear the page. Essential gameplay includes movement. Press Escape or use Exit game to return.';
     
     score = 0; scoreValue.textContent = '0'; gameTime = 0;
     lastTime = performance.now();
@@ -207,10 +212,11 @@ export function startGame(onDeactivate?: () => void) {
     ship.x = w / 2;
     introShipStartY = h + 80;
     introShipEndY = h / 2;
-    ship.y = introShipStartY;
+    ship.y = reducedMotion.matches ? introShipEndY : introShipStartY;
     ship.vx = 0; ship.vy = 0;
     ship.angle = -Math.PI / 2; // pointing up
-    introActive = true;
+    introActive = !reducedMotion.matches;
+    if (reducedMotion.matches) hud.classList.add('active');
     introTime = 0;
 
     animId = requestAnimationFrame(gameLoop);
@@ -222,7 +228,15 @@ export function startGame(onDeactivate?: () => void) {
   const outroDuration = 0.5;
 
   function cleanupShipMode() {
+    if (!shipModeActive) return;
     shipModeActive = false; entitiesReady = false;
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('keyup', handleKeyUp);
+    document.removeEventListener('astro:before-swap', handleBeforeSwap);
+    reducedMotion.removeEventListener('change', handleMotionChange);
+    dialog.removeEventListener('cancel', handleCancel);
+    exitButton.removeEventListener('click', handleExit);
+    for (const key of Object.keys(keys)) delete keys[key];
     window.removeEventListener('resize', resize);
     if (animId !== null) { cancelAnimationFrame(animId); animId = null; }
     canvas.style.opacity = '';
@@ -242,12 +256,18 @@ export function startGame(onDeactivate?: () => void) {
     spreadLevel = 1; bulletSizeMultiplier = 1; hasBlackHoleBomb = false; lastUpgradeScore = 0; fireCooldown = 0;
     bombIndicator?.classList.remove('active');
     ctx.clearRect(0, 0, w, h);
+    status.textContent = '';
+    dialog.close();
+    if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+      previousFocus.focus({ preventScroll: true });
+    }
     onDeactivate?.();
   }
 
   function deactivateShipMode(instant = false) {
-    if (!shipModeActive || outroActive) return;
-    if (instant) { cleanupShipMode(); return; }
+    if (!shipModeActive) return;
+    if (instant || reducedMotion.matches) { cleanupShipMode(); return; }
+    if (outroActive) return;
 
     outroActive = true;
     outroTime = 0;
@@ -310,6 +330,7 @@ export function startGame(onDeactivate?: () => void) {
   let glitchTmp: HTMLCanvasElement | null = null;
 
   function drawGlitchDistortion(intensity: number) {
+    if (reducedMotion.matches) return;
     // intensity 0→1: no distortion → full distortion
 
     // --- Horizontal slice displacement (VHS tracking) ---
@@ -368,6 +389,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function drawGlitchOverlay(t: number) {
+    if (reducedMotion.matches) return;
     // t goes from 0→1 over glitchDuration — intro: distortion fades out
     const intensity = 1 - t * t;
     drawGlitchDistortion(intensity);
@@ -381,6 +403,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function flashScreen() {
+    if (reducedMotion.matches) return;
     const flash = document.createElement('div');
     flash.style.cssText = `position:fixed;inset:0;background:rgba(160,128,196,0.3);z-index:10003;pointer-events:none;animation:flash-out 0.4s ease-out forwards;`;
     document.body.appendChild(flash);
@@ -388,6 +411,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function spawnExplosion(x: number, y: number, entityWidth = 20, entityHeight = 20, color = 'rgba(208,216,234,1)') {
+    if (reducedMotion.matches) return;
     const size = Math.max(entityWidth, entityHeight);
     const count = Math.min(30, Math.max(12, Math.floor(size / 3)));
     for (let i = 0; i < count; i++) {
@@ -405,6 +429,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function spawnFirework(x: number, y: number) {
+    if (!shipModeActive || reducedMotion.matches) return;
     const colors = [
       'rgba(255,180,120,1)',  // orange
       'rgba(160,128,196,1)',  // purple (site accent)
@@ -451,6 +476,7 @@ export function startGame(onDeactivate?: () => void) {
     victoryTriggered = true;
     victoryTime = gameTime;
     victoryMessage = victoryMessages[Math.floor(Math.random() * victoryMessages.length)];
+    status.textContent = `${victoryMessage} Final score: ${score}. Press Escape or use Exit game to return.`;
     
     // Initial burst of fireworks
     const positions = [
@@ -472,8 +498,7 @@ export function startGame(onDeactivate?: () => void) {
     const remaining = entities.filter(e => !e.destroyed && !e.edge).length;
     if (remaining === 0 && entities.length > 0) {
       triggerVictory();
-      // Hide the HUD for cleaner victory screen
-      hud.classList.remove('active');
+      // Keep text controls available alongside the canvas victory message.
     }
   }
 
@@ -552,10 +577,12 @@ export function startGame(onDeactivate?: () => void) {
     // Spread upgrades
     if (score >= 500 && spreadLevel < 3) {
       spreadLevel = 3;
+      status.textContent = 'Weapon upgraded: triple shot.';
       flashScreen();
     }
     if (score >= 1500 && spreadLevel < 5) {
       spreadLevel = 5;
+      status.textContent = 'Weapon upgraded: five-way shot.';
       flashScreen();
     }
     
@@ -585,6 +612,7 @@ export function startGame(onDeactivate?: () => void) {
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < p.radius + 15) {
         hasBlackHoleBomb = true;
+        status.textContent = 'Black hole bomb ready. Press Space to fire.';
         bombIndicator?.classList.add('active');
         pickups.splice(i, 1);
         flashScreen();
@@ -829,6 +857,7 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function drawParticles() {
+    if (reducedMotion.matches) return;
     for (const p of particles) { ctx.beginPath(); ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2); ctx.fillStyle = p.color.replace('1)', `${p.life})`); ctx.fill(); }
   }
 
@@ -969,8 +998,18 @@ export function startGame(onDeactivate?: () => void) {
   }
 
   function handleKeyDown(e: KeyboardEvent) {
+    if (!shipModeActive) return;
+    if (e.code === 'Tab') {
+      e.preventDefault();
+      if (document.activeElement === exitButton) dialog.focus({ preventScroll: true });
+      else exitButton.focus({ preventScroll: true });
+      return;
+    }
+    if (outroActive) return;
+    if (e.code === 'Escape') { e.preventDefault(); deactivateShipMode(); return; }
+    // Let Space/Enter activate the exit button instead of firing the ship.
+    if (e.target === exitButton) return;
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) e.preventDefault();
-    if (e.code === 'Escape') { deactivateShipMode(); return; }
     keys[e.code] = true;
     if (e.code === 'Space' && fireCooldown <= 0 && !victoryTriggered) {
       shoot();
@@ -980,15 +1019,36 @@ export function startGame(onDeactivate?: () => void) {
 
   function handleKeyUp(e: KeyboardEvent) { keys[e.code] = false; }
 
+  function handleMotionChange() {
+    if (!reducedMotion.matches) return;
+    particles.length = 0;
+    if (outroActive) { cleanupShipMode(); return; }
+    if (introActive) {
+      introActive = false;
+      ship.y = introShipEndY;
+      hud.classList.add('active');
+    }
+  }
+
+  function handleBeforeSwap() {
+    deactivateShipMode(true);
+  }
+
+  function handleExit() { deactivateShipMode(); }
+  function handleCancel(event: Event) {
+    // Keep the dialog modal until the game's normal teardown finishes.
+    event.preventDefault();
+    deactivateShipMode();
+  }
+
+  reducedMotion.addEventListener('change', handleMotionChange);
+  dialog.addEventListener('cancel', handleCancel);
+  exitButton.addEventListener('click', handleExit);
+
   // Start the game immediately
   document.addEventListener('keydown', handleKeyDown);
   document.addEventListener('keyup', handleKeyUp);
-  document.addEventListener('astro:before-swap', function cleanup() {
-    deactivateShipMode(true);
-    document.removeEventListener('keydown', handleKeyDown); 
-    document.removeEventListener('keyup', handleKeyUp); 
-    document.removeEventListener('astro:before-swap', cleanup); 
-  }, { once: true });
+  document.addEventListener('astro:before-swap', handleBeforeSwap, { once: true });
 
   activateShipMode();
 }

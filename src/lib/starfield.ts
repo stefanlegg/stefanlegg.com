@@ -43,35 +43,16 @@ export function initStarfield(c: HTMLCanvasElement): void {
 	}
 	generateStars();
 
-	const prefersReducedMotion = window.matchMedia(
-		"(prefers-reduced-motion: reduce)",
-	).matches;
-	if (prefersReducedMotion) {
+	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+	function drawStatic() {
+		ctx!.clearRect(0, 0, w, h);
 		for (const s of stars) {
-			ctx.beginPath();
-			ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-			ctx.fillStyle = "rgba(208,216,234," + s.baseA + ")";
-			ctx.fill();
+			ctx!.beginPath();
+			ctx!.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+			ctx!.fillStyle = "rgba(208,216,234," + s.baseA + ")";
+			ctx!.fill();
 		}
-		window.addEventListener("resize", () => {
-			const oldW = w;
-			const oldH = h;
-			resize();
-			const sx = w / oldW;
-			const sy = h / oldH;
-			for (const s of stars) {
-				s.x *= sx;
-				s.y *= sy;
-			}
-			ctx.clearRect(0, 0, w, h);
-			for (const s of stars) {
-				ctx.beginPath();
-				ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-				ctx.fillStyle = "rgba(208,216,234," + s.baseA + ")";
-				ctx.fill();
-			}
-		});
-		return;
 	}
 
 	window.addEventListener("resize", () => {
@@ -84,6 +65,7 @@ export function initStarfield(c: HTMLCanvasElement): void {
 			s.x *= sx;
 			s.y *= sy;
 		}
+		if (reducedMotion.matches) drawStatic();
 	});
 
 	let mouseX = 0.5;
@@ -326,6 +308,7 @@ export function initStarfield(c: HTMLCanvasElement): void {
 	const debrisList: Debris[] = [];
 	let nextSatelliteTime = 20 + Math.random() * 30;
 	let lastTime = performance.now();
+	let animationId: number | null = null;
 
 	document.addEventListener("click", (e: MouseEvent) => {
 		const cx = e.clientX;
@@ -343,6 +326,7 @@ export function initStarfield(c: HTMLCanvasElement): void {
 	});
 
 	function draw(now: number) {
+		if (reducedMotion.matches) { drawStatic(); return; }
 		const dt = Math.min((now - lastTime) / 1000, 0.1);
 		lastTime = now;
 		ctx.clearRect(0, 0, w, h);
@@ -392,7 +376,21 @@ export function initStarfield(c: HTMLCanvasElement): void {
 				debrisList.splice(i, 1);
 			}
 		}
-		requestAnimationFrame(draw);
+		animationId = requestAnimationFrame(draw);
 	}
-	requestAnimationFrame(draw);
+
+	function updateMotion() {
+		if (animationId !== null) cancelAnimationFrame(animationId);
+		animationId = null;
+		shootingStars.length = 0;
+		satellites.length = 0;
+		debrisList.length = 0;
+		if (reducedMotion.matches) drawStatic();
+		else {
+			lastTime = performance.now();
+			animationId = requestAnimationFrame(draw);
+		}
+	}
+	reducedMotion.addEventListener("change", updateMotion);
+	updateMotion();
 }

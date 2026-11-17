@@ -6,39 +6,31 @@ const pathname = removeTrailingSlash(Astro.url.pathname);
 
 <nav class="nav">
   <div class="nav-links">
-    <a href="/" class:list={["nav-link", { active: pathname === "/" }]}>Home</a>
-    <a href="/posts" class:list={["nav-link", { active: pathname.startsWith("/posts") }]}>Posts</a>
-    <a href="/bookmarks" class:list={["nav-link", { active: pathname.startsWith("/bookmarks") }]}>Bookmarks</a>
+    <a href="/" aria-current={pathname === "/" ? "page" : undefined} class:list={["nav-link", { active: pathname === "/" }]}>Home</a>
+    <a href="/posts" aria-current={pathname.startsWith("/posts") ? "page" : undefined} class:list={["nav-link", { active: pathname.startsWith("/posts") }]}>Posts</a>
+    <a href="/bookmarks" aria-current={pathname.startsWith("/bookmarks") ? "page" : undefined} class:list={["nav-link", { active: pathname.startsWith("/bookmarks") }]}>Bookmarks</a>
   </div>
 </nav>
-
-<script>
-  document.addEventListener('astro:after-swap', () => {
-    const nav = document.querySelector('.nav');
-    if (nav instanceof HTMLElement) {
-      nav.style.opacity = '1';
-      nav.style.animation = 'none';
-    }
-  });
-</script>
 
 <style>
   .nav {
     display: flex; justify-content: center; align-items: center;
     padding: 64px 0 20px;
-    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
   }
   .nav-links { display: flex; gap: 24px; }
   .nav-link {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 8px 6px;
+    border-bottom: 2px solid transparent;
     font-family: var(--font-mono); font-size: 14px; font-weight: 400;
     letter-spacing: 2px; text-transform: uppercase;
     color: var(--text-label); text-decoration: none; transition: color 0.3s;
   }
   .nav-link:hover { color: var(--text); }
-  .nav-link.active { color: var(--text); }
+  .nav-link.active { color: var(--text); border-bottom-color: var(--accent); }
 
   @media (max-width: 600px) {
     .nav { padding-top: 48px; }
-    .nav-links { gap: 14px; }
+    .nav-links { gap: 8px; }
   }
 </style>

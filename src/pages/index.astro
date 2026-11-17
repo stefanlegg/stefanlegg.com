@@ -7,7 +7,7 @@ import Layout from "@/layouts/Layout.astro";
 
 import work from "@/data/work";
 
-const posts = (await getCollection("posts")).sort(
+const posts = (await getCollection("posts", ({ data }) => !data.isDraft)).sort(
 	(first, second) => second.data.publishedAt.getTime() - first.data.publishedAt.getTime(),
 );
 
@@ -25,14 +25,14 @@ const grouped = companies.map((company) => ({
     <div class="hero-sub">15+ years building for the web &mdash; currently at <a href="https://shopify.com" target="_blank" rel="noopener" class="shopify-link">Shopify</a></div>
   </div>
 
-  <div class="section" style="animation-delay: 0.5s;">
+  <div class="section">
     <h2 class="section-label">About</h2>
     <div class="section-text">
       I've been building for the web for <strong>over 15 years</strong> — everything from scrappy experiments to tools used by <strong>millions around the world</strong>. These days, I'm focused on React, TypeScript, and making commerce better for everyone.
     </div>
   </div>
 
-  <div class="section" style="animation-delay: 0.6s;">
+  <div class="section">
     <h2 class="section-label">Work</h2>
     <div class="changelog">
       {grouped.map((group) => (
@@ -58,7 +58,7 @@ const grouped = companies.map((company) => ({
   </div>
 
   {posts.length > 0 && (
-    <div class="section" style="animation-delay: 0.75s;">
+    <div class="section">
       <h2 class="section-label">Writing</h2>
       {posts.slice(0, 1).map((post) => (
         <PostCard
@@ -72,7 +72,7 @@ const grouped = companies.map((company) => ({
     </div>
   )}
 
-  <div class="section" style="animation-delay: 0.85s;">
+  <div class="section">
     <h2 class="section-label">Connect</h2>
     <SocialLinks />
   </div>
@@ -107,7 +107,22 @@ const grouped = companies.map((company) => ({
 <style>
   .hero {
     padding: 56px 0 48px;
-    opacity: 0; animation: fade-up 1s ease 0.4s forwards;
+    animation: hero-enter 240ms var(--ease-out) both;
+  }
+  @keyframes hero-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hero-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      animation-name: hero-fade;
+      /* Keep a gentle fade instead of the global instant-animation fallback. */
+      animation-duration: 120ms !important;
+    }
   }
   .hero-name {
     font-family: var(--font-body);
@@ -137,7 +152,6 @@ const grouped = companies.map((company) => ({
 
   .section {
     padding: 48px 0;
-    opacity: 0; animation: fade-up 0.8s ease forwards;
   }
   .section-label {
     font-family: var(--font-mono); font-size: 14px; font-weight: 500;
@@ -184,16 +198,13 @@ const grouped = companies.map((company) => ({
     display: flex; flex-direction: column; gap: 8px;
     padding: 18px 0;
     text-decoration: none; color: inherit;
-    transition: all 0.2s;
     position: relative;
   }
   .changelog-entry + .changelog-entry {
     border-top: 1px solid rgba(208, 216, 234, 0.05);
   }
-  .changelog-entry:hover {
-    transform: translateX(6px);
-  }
-  .changelog-entry:hover .changelog-name { color: var(--accent-bright); }
+  .changelog-entry:focus-visible .changelog-name { color: var(--accent-bright); }
+  .changelog-entry:focus-visible .changelog-arrow { color: var(--accent-bright); }
 
   /* accent bar glow on hover */
   .changelog-entries {
@@ -206,17 +217,20 @@ const grouped = companies.map((company) => ({
 
   .changelog-name {
     font-size: 24px; font-weight: 500; color: var(--text);
-    transition: color 0.2s;
+    transition: color 160ms ease;
   }
 
   .changelog-arrow {
     font-size: 15px; color: var(--text-muted);
-    transition: color 0.2s, transform 0.2s;
+    transition: color 160ms ease, transform 160ms var(--ease-out);
     flex-shrink: 0;
   }
-  .changelog-entry:hover .changelog-arrow {
-    color: var(--accent-bright);
-    transform: translate(2px, -2px);
+  @media (hover: hover) and (pointer: fine) {
+    .changelog-entry:hover .changelog-name { color: var(--accent-bright); }
+    .changelog-entry:hover .changelog-arrow {
+      color: var(--accent-bright);
+      transform: translate(2px, -2px);
+    }
   }
 
   .changelog-desc {
@@ -234,12 +248,11 @@ const grouped = companies.map((company) => ({
     display: flex; justify-content: space-between;
     font-family: var(--font-mono); font-size: 13px; font-weight: 400;
     letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted);
-    opacity: 0; animation: fade-up 0.5s ease 1.0s forwards;
   }
 
   @media (max-width: 600px) {
     .hero { padding: 40px 0 36px; }
-    .hero-name { font-size: 36px; }
+    .hero-name { font-size: clamp(44px, 12vw, 48px); }
     .changelog-entries { padding-left: 16px; }
     .changelog-name { font-size: 20px; }
     .footer { flex-direction: column; gap: 6px; text-align: center; }

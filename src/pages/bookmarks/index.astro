@@ -17,7 +17,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(
     {bookmarks.map((bookmark) => (
       <a class="bookmark-row" href={`/bookmarks/${bookmark.slug}`}>
         <div class="bookmark-row-header">
-          <h2 class="bookmark-row-title">{bookmark.data.title}</h2>
+          <h2 class="bookmark-row-title">{bookmark.data.title} <span class="row-arrow" aria-hidden="true">↗</span></h2>
           <span class="bookmark-row-date">{formatDate(bookmark.data.publishedAt)}</span>
         </div>
         <p class="bookmark-row-desc">{bookmark.data.description}</p>
@@ -29,7 +29,6 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 <style>
   .page-header {
     padding: 56px 0 24px;
-    opacity: 0; animation: fade-up 0.8s ease 0.3s forwards;
   }
   .page-title {
     font-family: var(--font-mono); font-size: 14px; font-weight: 500;
@@ -43,26 +42,35 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 
   .bookmark-list {
     display: flex; flex-direction: column;
-    opacity: 0; animation: fade-up 0.8s ease 0.5s forwards;
   }
   .bookmark-row {
     display: block; text-decoration: none; color: inherit;
     padding: 24px 0; border-top: 1px solid var(--text-rule);
-    transition: all 0.3s; position: relative;
+    transition: background-color 160ms ease; position: relative;
   }
-  .bookmark-row::after {
-    content: ''; position: absolute;
-    top: 0; bottom: 0; left: -12px; width: 12px;
+  .bookmark-row:focus-visible { background-color: var(--accent-glow); }
+  .bookmark-row:focus-visible .bookmark-row-title { color: var(--accent-bright); }
+  .row-arrow {
+    display: inline-block; font-family: var(--font-mono); font-size: 15px;
+    color: var(--text-label); margin-left: 8px;
+    transition: transform 160ms var(--ease-out), color 160ms ease;
   }
-  .bookmark-row:hover {
-    transform: translateX(12px);
-    background: linear-gradient(90deg, var(--accent-glow), transparent 60%);
+  @media (hover: hover) and (pointer: fine) {
+    .bookmark-row:hover { background-color: var(--accent-glow); }
+    .bookmark-row:hover .bookmark-row-title { color: var(--accent-bright); }
+    .bookmark-row:hover .row-arrow {
+      color: var(--accent-bright); transform: translate(2px, -2px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row-arrow { transform: none !important; }
   }
   .bookmark-row-header {
     display: flex; justify-content: space-between;
     align-items: baseline; gap: 16px; margin-bottom: 8px;
   }
   .bookmark-row-title {
+    transition: color 160ms ease;
     font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.3;
   }
   .bookmark-row-date {

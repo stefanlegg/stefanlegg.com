@@ -16,6 +16,7 @@
 	--accent: #a080c4;
 	--accent-glow: rgba(160, 128, 196, 0.15);
 	--accent-bright: #bb9add;
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * {
@@ -48,7 +49,14 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after {
 		animation-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
+	}
+
+	.changelog-entry:hover, .changelog-arrow,
+	.post-row:hover, .bookmark-row:hover, .project-item:hover,
+	.scroll-secret {
+		transform: none !important;
 	}
 }
