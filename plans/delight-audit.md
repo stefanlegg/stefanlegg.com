@@ -197,3 +197,10 @@ The hero is a rare/occasional arrival with a delight purpose. Navigation stays s
 After local review, the user found navigation too abrupt. Restore a 220ms opacity crossfade on main content while the navigation and sky stay steady. Disable the view-transition group's default geometry animation to avoid morphing between page heights. The homepage hero retains its direct-load entrance; during client navigation the crossfade carries it without a second entrance. Reduced-motion navigation remains usable.
 
 Validation: production build passed. Chromium checks confirmed 220ms incoming/outgoing fades across Home, Posts, and Bookmarks, stationary navigation, no repeated hero entrance, no default group geometry animation, and working reduced-motion navigation without page errors.
+
+
+## Finding 3 refinement: preserve overlay compositing
+
+The content crossfade temporarily painted above the document's vignette and grain, causing headings to brighten and then dim at the transition boundary. Give both overlays named, non-animated transition groups and preserve their stacking order above the content snapshots. The content fade remains 220ms.
+
+Validation: production build passed. Chromium navigation across Home, Posts, and Bookmarks confirmed stationary overlay groups, a fully opaque incoming vignette and hidden outgoing copy. Heading screenshots immediately before and after transition completion showed no visible brightness jump (mean absolute pixel difference 0.13% across the heading crop). The shared preview snapshot timed out twice, so these checks used local Chromium.

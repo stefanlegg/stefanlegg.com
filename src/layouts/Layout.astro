@@ -18,8 +18,8 @@ const { ...headTags } = Astro.props;
   <SEOTags {...headTags} />
   <body>
     <canvas class="stars" id="stars" transition:persist></canvas>
-    <div class="grain" transition:persist></div>
-    <div class="vignette" transition:persist></div>
+    <div class="grain" transition:persist transition:name="grain" transition:animate="none"></div>
+    <div class="vignette" transition:persist transition:name="vignette" transition:animate="none"></div>
 
     <div class="page">
       <Header />
@@ -63,6 +63,11 @@ const { ...headTags } = Astro.props;
 <style is:global>
   /* Crossfade content without morphing the height of different pages. */
   ::view-transition-group(page-content) { animation: none; }
+
+  /* Transition snapshots sit above the document. Carry the overlays into that
+     layer too, preserving their normal stacking order without fading them. */
+  ::view-transition-group(vignette) { z-index: 9996; animation: none; }
+  ::view-transition-group(grain) { z-index: 9998; animation: none; }
 
   /* Star field canvas */
   .stars {
