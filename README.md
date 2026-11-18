@@ -4,7 +4,7 @@ A modern, fast portfolio website built with Astro, TypeScript, and Tailwind CSS.
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Astro](https://astro.build) v5.7
+- **Framework**: [Astro](https://astro.build) v7.4
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Package Manager**: Bun
@@ -28,6 +28,7 @@ src/
 ### Prerequisites
 
 - [Bun](https://bun.sh) installed on your machine
+- Node.js 22.23.5 (see `.nvmrc`)
 
 ### Installation
 

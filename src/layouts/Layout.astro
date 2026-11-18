@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions, fade } from "astro:transitions";
+import { ClientRouter, fade } from "astro:transitions";
 import SEOTags from "@/components/seo/SEOTags.astro";
 import type { HeadTags } from "@/utils/types/HeadTags";
 import Header from "../components/Header.astro";
@@ -35,7 +35,7 @@ const { ...headTags } = Astro.props;
 
     <KonamiGame />
   </body>
-  <ViewTransitions />
+  <ClientRouter />
 
   <script>
     import { initStarfield } from '@/lib/starfield';

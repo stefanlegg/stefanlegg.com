@@ -1,12 +1,21 @@
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
+import autoprefixer from "autoprefixer";
+import tailwindcss from "tailwindcss";
 import robotsTxt from "astro-robots-txt";
 import { defineConfig } from "astro/config";
 import { SITE_URL } from "./src/data/config";
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [tailwind(), sitemap(), robotsTxt()],
+	integrations: [sitemap(), robotsTxt()],
+	compressHTML: true,
+	vite: {
+		css: {
+			postcss: {
+				plugins: [tailwindcss(), autoprefixer()],
+			},
+		},
+	},
 	site: SITE_URL,
 	markdown: {
 		syntaxHighlight: "shiki",

@@ -15,7 +15,7 @@ const posts = (await getCollection("posts", ({ data }) => !data.isDraft)).sort(
 
   <div class="post-list">
     {posts.map((post) => (
-      <a class="post-row" href={`/posts/${post.slug}`}>
+      <a class="post-row" href={`/posts/${post.id}`}>
         <div class="post-row-header">
           <h2 class="post-row-title">{post.data.title} <span class="row-arrow" aria-hidden="true">→</span></h2>
           <span class="post-row-date">{formatDate(post.data.publishedAt)}</span>
