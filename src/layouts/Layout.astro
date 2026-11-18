@@ -40,6 +40,7 @@ const { ...headTags } = Astro.props;
   <script>
     import { initStarfield } from '@/lib/starfield';
     import { initScrollSecret } from '@/lib/scroll-secret';
+    import { getVisitStart } from '@/lib/visit-clock';
 
     document.addEventListener('astro:before-swap', (event) => {
       // The route crossfade carries the incoming hero; avoid two entrances.
@@ -48,6 +49,7 @@ const { ...headTags } = Astro.props;
     });
 
     document.addEventListener('astro:page-load', () => {
+      getVisitStart();
       const canvas = document.getElementById('stars') as HTMLCanvasElement;
       if (canvas) initStarfield(canvas);
 
