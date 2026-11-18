@@ -4,8 +4,9 @@ export function initStarfield(c: HTMLCanvasElement): void {
 	if (initialized) return;
 	initialized = true;
 
-	const ctx = c.getContext("2d");
-	if (!ctx) return;
+	const context = c.getContext("2d");
+	if (!context) return;
+	const ctx = context;
 	let w: number, h: number;
 
 	function resize() {
