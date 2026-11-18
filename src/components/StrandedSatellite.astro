@@ -1,0 +1,140 @@
+<div class="orbiting-satellite" aria-hidden="true">
+  <div class="orbital-space">
+    <div class="satellite-revolution">
+      <div class="satellite">
+        <svg class="satellite-scene" viewBox="-100 -85 200 170" fill="none">
+          <g class="satellite-craft">
+            <path class="satellite-struts" d="M-64 0H64M0-15V-35" />
+            <g class="satellite-panels">
+              <rect x="-70" y="-25" width="40" height="50" rx="2" />
+              <rect x="30" y="-25" width="40" height="50" rx="2" />
+              <path d="M-50-25V25M50-25V25M-70-8H-30M-70 8H-30M30-8H70M30 8H70" />
+            </g>
+            <rect class="satellite-body" x="-18" y="-15" width="36" height="30" rx="5" />
+            <path class="satellite-detail" d="M-9-5H3M-9 2H-2" />
+            <circle class="status-light" cx="10" cy="7" r="2.5" />
+            <circle class="satellite-antenna" cy="-39" r="3" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function anchorOrbitToHeadline() {
+    const root = document.querySelector<HTMLElement>('.orbiting-satellite');
+    const scene = root?.closest<HTMLElement>('.lost-orbit');
+    const heading = scene?.querySelector<HTMLElement>('#lost-title');
+    const copy = scene?.querySelector<HTMLElement>('.lost-copy');
+    const orbit = root?.querySelector<HTMLElement>('.orbital-space');
+    const satellite = root?.querySelector<HTMLElement>('.satellite');
+    if (!root || !scene || !heading || !copy || !orbit || !satellite) return;
+
+    function updateAnchor() {
+      if (!root!.isConnected) return;
+      const sceneStyle = getComputedStyle(scene!);
+      const perspective = Number.parseFloat(sceneStyle.perspective);
+      const originY = Number.parseFloat(sceneStyle.perspectiveOrigin.split(' ')[1]);
+      const radius = satellite!.offsetLeft - scene!.clientWidth / 2;
+      const plane = new DOMMatrix(getComputedStyle(orbit!).transform);
+      const nearPoint = new DOMPoint(0, radius, 0).matrixTransform(plane);
+      const scale = perspective / (perspective - nearPoint.z);
+      const sceneRect = scene!.getBoundingClientRect();
+      const headingRect = heading!.getBoundingClientRect();
+      const headingY = headingRect.top - sceneRect.top + headingRect.height / 2;
+
+      // Project the near side through the headline's center. Read the actual
+      // plane and perspective so CSS changes don't need matching JS constants.
+      orbit!.style.top = `${originY + (headingY - originY) / scale - nearPoint.y}px`;
+    }
+
+    updateAnchor();
+    const observer = new ResizeObserver(updateAnchor);
+    observer.observe(scene);
+    observer.observe(heading);
+    observer.observe(copy);
+    document.fonts.ready.then(updateAnchor);
+    document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
+  }
+
+  document.addEventListener('astro:page-load', anchorOrbitToHeadline);
+</script>
+
+<style>
+  .orbiting-satellite {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform-style: preserve-3d;
+  }
+  .orbital-space {
+    position: absolute;
+    /* Initial placement; the headline measurement refines this after load. */
+    top: 32%;
+    left: 0;
+    width: 100%;
+    height: 0;
+    transform: rotateZ(-22deg) rotateX(72deg);
+    transform-style: preserve-3d;
+  }
+  .satellite-revolution {
+    position: relative;
+    width: 100%;
+    height: 0;
+    transform-style: preserve-3d;
+    animation: satellite-orbit 32s linear infinite;
+  }
+  .satellite {
+    position: absolute;
+    top: 0;
+    left: calc(100% - 100px);
+    width: 90px;
+    transform: translate(-50%, -50%) rotateX(-72deg) rotateZ(22deg);
+    animation: satellite-face-camera 32s linear infinite;
+  }
+  .satellite-scene {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    animation: satellite-depth 32s linear infinite;
+  }
+  .satellite-revolution,
+  .satellite,
+  .satellite-scene {
+    /* Keep the three motions in phase and show the close pass early. */
+    animation-delay: -6s;
+  }
+  .satellite-craft { transform: rotate(-25deg); }
+  .satellite-struts { stroke: var(--accent-bright); stroke-width: 2; }
+  .satellite-panels { fill: #201a2b; stroke: var(--accent); }
+  .satellite-body { fill: var(--text); }
+  .satellite-detail { stroke: var(--bg); stroke-opacity: 0.4; }
+  .status-light { fill: var(--accent); }
+  .satellite-antenna { fill: var(--accent-bright); }
+
+  @keyframes satellite-orbit {
+    from { transform: rotateZ(0deg); }
+    to { transform: rotateZ(360deg); }
+  }
+  @keyframes satellite-face-camera {
+    from { transform: translate(-50%, -50%) rotateZ(0deg) rotateX(-72deg) rotateZ(22deg); }
+    to { transform: translate(-50%, -50%) rotateZ(-360deg) rotateX(-72deg) rotateZ(22deg); }
+  }
+  @keyframes satellite-depth {
+    0%, 50%, 100% { opacity: 0.8; }
+    25% { opacity: 1; }
+    75% { opacity: 0.45; }
+  }
+  @media (max-width: 600px) {
+    .satellite {
+      width: 60px;
+      left: calc(100% - 48px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .satellite-revolution,
+    .satellite,
+    .satellite-scene { animation: none; }
+  }
+</style>
