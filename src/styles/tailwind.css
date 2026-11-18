@@ -3,8 +3,6 @@
 @tailwind utilities;
 
 :root {
-	--font-mono: "JetBrains Mono", monospace;
-	--font-body: "Crimson Pro", Georgia, serif;
 	--bg: #08090e;
 	--text: #d0d8ea;
 	--text-strong: rgba(208, 216, 234, 0.92);
