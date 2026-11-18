@@ -1,5 +1,5 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import formatDate from "@/utils/formatDate";
 
@@ -7,7 +7,7 @@ export async function getStaticPaths() {
 	const posts = await getCollection("posts", ({ data }) => !data.isDraft);
 
 	return posts.map((post) => ({
-		params: { slug: post.slug },
+		params: { slug: post.id },
 		props: { post },
 	}));
 }
@@ -17,7 +17,7 @@ type Props = {
 };
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 ---
 
 <Layout 
@@ -25,7 +25,7 @@ const { Content } = await post.render();
   description={post.data.description}
   og={{ 
     type: "article",
-    image: `/og/${post.slug}.png`,
+    image: `/og/${post.id}.png`,
     alt: post.data.title,
   }}
   article={{

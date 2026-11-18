@@ -15,7 +15,7 @@ const bookmarks = (await getCollection("bookmarks")).sort(
 
   <div class="bookmark-list">
     {bookmarks.map((bookmark) => (
-      <a class="bookmark-row" href={`/bookmarks/${bookmark.slug}`}>
+      <a class="bookmark-row" href={`/bookmarks/${bookmark.id}`}>
         <div class="bookmark-row-header">
           <h2 class="bookmark-row-title">{bookmark.data.title} <span class="row-arrow" aria-hidden="true">↗</span></h2>
           <span class="bookmark-row-date">{formatDate(bookmark.data.publishedAt)}</span>

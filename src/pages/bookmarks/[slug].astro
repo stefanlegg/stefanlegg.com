@@ -2,13 +2,12 @@
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import formatDate from "@/utils/formatDate";
 
 export async function getStaticPaths() {
 	const bookmarks = await getCollection("bookmarks");
 
 	return bookmarks.map((bookmark) => ({
-		params: { slug: bookmark.slug },
+		params: { slug: bookmark.id },
 		props: { bookmark },
 	}));
 }

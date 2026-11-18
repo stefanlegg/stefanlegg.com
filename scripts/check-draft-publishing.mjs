@@ -1,18 +1,23 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const require = createRequire(import.meta.url);
+const astroPackagePath = require.resolve('astro/package.json');
+const { bin } = JSON.parse(readFileSync(astroPackagePath, 'utf8'));
+const astroCLI = resolve(dirname(astroPackagePath), bin.astro);
 const slug = `draft-publishing-regression-${randomUUID()}`;
 const title = `Unpublished regression fixture ${slug}`;
 const fixture = resolve(root, 'src/content/posts', `${slug}.md`);
 
 try {
   writeFileSync(fixture, `---\ntitle: "${title}"\npublishedAt: 2026-01-01\ndescription: "This draft must never be published."\nisDraft: true\n---\nPrivate draft body.\n`, { flag: 'wx' });
-  const result = spawnSync(process.execPath, ['node_modules/astro/astro.js', 'build'], {
+  const result = spawnSync(process.execPath, [astroCLI, 'build'], {
     cwd: root, stdio: 'inherit',
   });
   if (result.error) throw result.error;
