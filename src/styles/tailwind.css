@@ -1,21 +1,8 @@
+@import "./theme.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-	--bg: #08090e;
-	--text: #d0d8ea;
-	--text-strong: rgba(208, 216, 234, 0.92);
-	--text-body: rgba(208, 216, 234, 0.82);
-	--text-label: rgba(208, 216, 234, 0.72);
-	--text-muted: rgba(208, 216, 234, 0.58);
-	--text-faint: rgba(208, 216, 234, 0.22);
-	--text-rule: rgba(208, 216, 234, 0.1);
-	--accent: #a080c4;
-	--accent-glow: rgba(160, 128, 196, 0.15);
-	--accent-bright: #bb9add;
-	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-}
 
 * {
 	margin: 0;
