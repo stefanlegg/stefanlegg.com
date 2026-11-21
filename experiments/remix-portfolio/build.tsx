@@ -12,7 +12,7 @@ try {
     entryPoints: ["browser.ts", "style.css"],
     entryNames: "assets/[name]-[hash]",
     assetNames: "assets/[name]-[hash]",
-    loader: { ".woff2": "file" },
+    loader: { ".woff2": "file", ".webp": "file" },
     bundle: true, format: "esm", minify: true, metafile: true, outdir: staging,
   });
   function asset(entryPoint: string) {
