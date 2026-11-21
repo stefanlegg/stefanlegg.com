@@ -1,0 +1,6 @@
+@font-face {font-family: "Crimson Pro"; src: url("@fontsource-variable/crimson-pro/files/crimson-pro-latin-wght-normal.woff2") format("woff2"); font-weight: 200 900; font-display: swap}
+@font-face {font-family: "Crimson Pro"; src: url("@fontsource-variable/crimson-pro/files/crimson-pro-latin-wght-italic.woff2") format("woff2"); font-style: italic; font-weight: 200 900; font-display: swap}
+@font-face {font-family: "JetBrains Mono"; src: url("@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; font-display: swap}
+body { background: #08090e; color: #d0d8ea; font-family: "Crimson Pro", Georgia, serif }
+a { color: inherit }
+nav { display: flex; gap: 1rem }

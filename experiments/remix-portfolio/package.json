@@ -1,0 +1,21 @@
+{
+  "name": "remix-portfolio-experiment",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.3.0"
+  },
+  "scripts": {
+    "build": "tsx build.tsx",
+    "preview": "python3 -m http.server 4410 --directory dist"
+  },
+  "dependencies": {
+    "remix": "3.3.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/crimson-pro": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15"
+  }
+}

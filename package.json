@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "bunx --bun astro dev",
 		"start": "bunx --bun astro dev",
-		"build": "npx astro build",
+		"build": "sh experiments/remix-portfolio/pages-build.sh",
 		"preview": "bunx --bun astro preview",
 		"check": "bunx --bun astro check",
 		"astro": "bunx --bun astro",
