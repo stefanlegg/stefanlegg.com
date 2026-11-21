@@ -54,3 +54,20 @@ npm run preview
 Open `http://localhost:4410`. For the browser regression suite, run `npx playwright install chromium` once, then `npm test`. The tests build and serve their own copy on port 4412. Set `PREVIEW_URL` to run them against a deployed preview, or `CHROMIUM_PATH` to use a locally installed Chromium executable.
 
 Cloudflare's Git integration calls the root build on push. For this branch the build script installs the experiment's locked dependencies, builds its static files, and copies them into the root output directory. The lunar artwork is a shaded projection of the NASA Scientific Visualization Studio's LRO color map. [Moon Kit source imagery and credits](https://svs.gsfc.nasa.gov/4720/)
+
+## Second preview · solar system
+
+The first preview lives on `explore/remix-portfolio`. The solar-system variation lives on `explore/portfolio-solar-system`; each branch builds its own Cloudflare Pages preview. Use the same local build, preview, and test commands above for either checkout.
+
+The home map puts Work, Writing, and Bookmarks around a central sun. Selecting a planet opens its collection. Project, post, and bookmark detail pages have shareable URLs. The orbit controls show up to four labeled moons at once, and the text index links to every entry. The static build reads work data and published Markdown from the repository.
+
+### Motion timeline
+
+| Element | Role | Starts | Duration | Motion | Relationship |
+| --- | --- | --- | --- | --- | --- |
+| Selected planet | Lead | Selection | 280 ms | Move to the center and enlarge | The planet carries its surface and ring |
+| Other planets and system tracks | Support | Selection | 150–160 ms | Fade out | Clears space as the planet approaches |
+| Moons and local tracks | Support | Arrival of the new document | 150 ms | Fade in together | All links are available immediately |
+| Camera | Lead on moon selection | Selection | 280 ms | Shift slightly toward the chosen moon | Carries the entire chart |
+
+The starfield canvas stays mounted to preserve continuity. Text links keep their positions for keyboard access. Reduced motion and keyboard navigation snap to the destination. The feel check is the moment the Work planet leaves its orbit and its project moons become readable, followed by Back while the camera is moving.

@@ -21,7 +21,9 @@
     "@types/dom-navigation": "1.0.7",
     "@types/node": "24.19.2",
     "esbuild": "0.28.2",
+    "micromark": "4.0.3",
     "tsx": "4.23.15",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "2.9.1"
   }
 }

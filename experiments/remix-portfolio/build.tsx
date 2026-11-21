@@ -2,7 +2,7 @@ import { cp, mkdir, mkdtemp, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { build } from "esbuild";
 import { renderToString } from "remix/component/server";
-import { projects } from "./projects.ts";
+import { pages } from "./system.ts";
 import { documentView, notFound } from "./views.tsx";
 
 process.chdir(import.meta.dirname);
@@ -27,13 +27,12 @@ try {
 		return "/" + relative(staging, output[0]);
 	}
 	const assets = { script: asset("browser.ts"), css: asset("style.css") };
-	for (const project of [undefined, ...projects]) {
-		const file = join(staging, project?.path ?? "/", "index.html");
+	for (const [path, scene] of pages()) {
+		if (!/^\/(?:[\p{L}\p{N}_-]+\/)*$/u.test(path))
+			throw new Error(`Invalid content route: ${path}`);
+		const file = join(staging, path, "index.html");
 		await mkdir(dirname(file), { recursive: true });
-		await writeFile(
-			file,
-			"<!doctype html>" + (await renderToString(documentView(assets, project))),
-		);
+		await writeFile(file, "<!doctype html>" + (await renderToString(documentView(assets, scene))));
 	}
 	await writeFile(
 		join(staging, "404.html"),

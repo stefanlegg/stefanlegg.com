@@ -89,288 +89,427 @@ a:focus-visible {
 	color: var(--text);
 	border-color: var(--accent);
 }
-.scene {
-	display: grid;
-	grid-template-columns: 1fr minmax(0, .98fr);
-	gap: 16px;
-	align-items: center;
-	padding: 24px 0 12px;
+.nav {
+	padding-top: 42px;
 }
-.scene > .identity,
-.project-copy {
-	grid-column: 1;
-	grid-row: 1;
-}
-.compact-identity {
-	display: none;
-}
-.scene > .chart {
-	grid-column: 2;
-	grid-row: 1;
-}
-.copy {
-	position: relative;
-}
-h1,
-.name {
-	font: 200 clamp(48px, 7vw, 76px) / 1 var(--font-body);
-	letter-spacing: -.5px;
+.nav a[aria-current] {
+	border-bottom-color: var(--accent);
 	color: var(--text);
-	text-shadow: 0 0 40px var(--accent-glow);
-	text-wrap: balance;
+}
+.scene-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 32px;
+	padding: 20px 0 10px;
+}
+.name,
+h1 {
+	font: 200 clamp(46px, 7vw, 74px) / 1 var(--font-body);
+	letter-spacing: -.5px;
 	outline: none;
+	text-wrap: balance;
 }
 .name strong {
 	font-weight: 600;
 }
+.role,
+.section-label,
+.return,
+.meta,
+.map-hint,
+.orbit-controls,
+footer {
+	font: 400 13px / 1.6 var(--font-mono);
+}
 .role {
-	margin-top: 18px;
-	font: 400 16px / 1.8 var(--font-mono);
-	letter-spacing: 4px;
 	text-transform: uppercase;
-	color: var(--accent);
+	letter-spacing: 3px;
+	color: var(--accent-bright);
+	margin: 14px 0 0;
 }
-.hero-sub,
-.techs,
-.return {
-	font: 400 14px / 1.75 var(--font-mono);
-	color: var(--text-label);
+.intro {
+	max-width: 28ch;
+	font-size: 21px;
+	line-height: 1.45;
+	color: var(--text-body);
+	font-weight: 300;
 }
-.hero-sub {
-	margin-top: 10px;
-	letter-spacing: 1px;
-}
-.return {
-	display: inline-block;
-	padding: 10px 0;
+.intro a,
+.source,
+.return,
+.orbit-controls a {
 	color: var(--accent-bright);
 }
-.project-summary {
-	margin: 16px 0 8px;
-	font-size: 21px;
-	font-weight: 300;
-	line-height: 1.5;
-	color: var(--text-body);
+.sky {
+	position: relative;
+	isolation: isolate;
+	container-type: size;
+	width: 100%;
+	height: clamp(290px, 34vw, 360px);
+	margin: 8px 0 0;
+	background: radial-gradient(ellipse at 50% 50%, rgba(109, 87, 144, 0.09), transparent 68%);
 }
-.source {
-	display: inline-block;
-	margin: 10px 0;
-	border-bottom: 1px solid var(--accent);
+.camera {
+	position: absolute;
+	inset: 0;
+	transition: transform 280ms var(--ease-out);
 }
-.section {
-	padding: 44px 0;
+.tracks,
+.moon-field {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
 }
-.section-label,
-.company {
+.tracks i {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+}
+.system-tracks i:first-child {
+	width: 35%;
+	height: 40%;
+}
+.system-tracks i:nth-child(2) {
+	width: 67%;
+	height: 58%;
+	border-color: color-mix(in srgb, var(--text) 22%, transparent);
+}
+.system-tracks i:last-child {
+	width: 92%;
+	height: 76%;
+}
+.sun {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	translate: -50% -50%;
+	width: clamp(42px, 9.5cqw, 78px);
+	aspect-ratio: 1;
+	background: url("./media/sun.webp") center / cover;
+	border-radius: 50%;
+	box-shadow: 0 0 10px 2px #f3c79c6b, 0 0 32px 8px #e6b39638, 0 0 78px 24px #ddac8d15;
+}
+.sun,
+.system-tracks {
+	transition: opacity 160ms ease;
+}
+[data-focused] .sun,
+[data-focused] .system-tracks {
+	opacity: 0;
+}
+.work {
+	--surface: url("./media/jupiter.webp");
+	--diameter: clamp(44px, 9cqw, 74px);
+}
+.posts {
+	--surface: url("./media/mars.webp");
+	--diameter: clamp(25px, 4.8cqw, 42px);
+}
+.bookmarks {
+	--surface: url("./media/neptune.webp");
+	--diameter: clamp(34px, 6.8cqw, 58px);
+}
+.anchor {
+	position: absolute;
+	z-index: 2;
+	transition: transform 280ms var(--ease-out), opacity 150ms ease;
+}
+.anchor[data-away] {
+	opacity: 0;
+	pointer-events: none;
+}
+.planet-link {
+	position: absolute;
+	top: 0;
+	left: 0;
+	translate: -50% -50%;
+	display: grid;
+	place-items: center;
+	min-width: 44px;
+	min-height: 44px;
+	width: var(--diameter);
+	height: var(--diameter);
+	border-radius: 50%;
+}
+.surface,
+.mini-body {
+	display: block;
+	background: var(--surface) center / cover;
+	aspect-ratio: 1;
+	border-radius: 50%;
+}
+.surface {
+	width: var(--diameter);
+	position: relative;
+	transition: transform 280ms var(--ease-out);
+}
+.work .surface::after {
+	content: "";
+	position: absolute;
+	inset: 24% -22%;
+	border: 2px solid #bcb0bd77;
+	border-top-color: transparent;
+	border-radius: 50%;
+	transform: rotate(-25deg);
+	pointer-events: none;
+}
+.satellite-specks {
+	position: absolute;
+	top: 8%;
+	right: -13%;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--text-muted);
+	box-shadow: 5px 9px 0 -1px var(--accent);
+	transition: opacity 150ms ease;
+}
+.anchor[data-selected] .surface {
+	transform: scale(1.5);
+}
+.posts[data-selected] .surface {
+	transform: scale(2.3);
+}
+.bookmarks[data-selected] .surface {
+	transform: scale(1.8);
+}
+.posts .planet-tag {
+	top: auto;
+	bottom: calc(100% + 3px);
+}
+.anchor[data-selected] .planet-tag,
+.anchor[data-selected] .satellite-specks {
+	opacity: 0;
+}
+.planet-tag,
+.moon-tag {
+	font: 400 12px / 1.35 var(--font-mono);
+	color: var(--text);
+	text-align: center;
+	text-shadow: 0 1px 5px var(--bg), 0 0 10px var(--bg);
+}
+.planet-tag {
+	position: absolute;
+	top: calc(100% + 3px);
+	white-space: nowrap;
+	left: 50%;
+	translate: -50% 0;
+	transition: opacity 150ms ease;
+}
+.moon-tracks i:first-child {
+	width: 72%;
+	height: 76%;
+}
+.moon-tracks i:last-child {
+	width: 52%;
+	height: 48%;
+	border-style: dashed;
+	opacity: 0.45;
+}
+.moon-field {
+	z-index: 3;
+	opacity: 1;
+	transition: opacity 150ms ease;
+	@starting-style {
+		opacity: 0;
+	}
+}
+.moon-link {
+	position: absolute;
+	translate: -50% -50%;
+	width: clamp(86px, 24cqw, 154px);
+	height: 54px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	pointer-events: auto;
+	border-radius: 4px;
+}
+.lunar-rock {
+	display: block;
+	width: clamp(17px, 3.6cqw, 30px);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: url("./media/moon.webp") center / cover;
+	filter: grayscale(0.8);
+	box-shadow: -1px -1px 4px #cfc2e945;
+	transition: transform 160ms var(--ease-out);
+}
+.moon-link:nth-of-type(even) .lunar-rock {
+	rotate: 22deg;
+}
+.moon-tag {
+	position: absolute;
+	top: calc(50% + clamp(10px, 2.1cqw, 19px));
+	width: 100%;
+	text-wrap: balance;
+	font-size: 11px;
+}
+.moon-link[aria-current] .moon-tag {
+	color: var(--accent-bright);
+}
+.moon-link[aria-current] .lunar-rock {
+	outline: 1px solid var(--accent-bright);
+	outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+	.planet-link:hover .planet-tag,
+	.moon-link:hover .moon-tag,
+	.routes a:hover strong,
+	.socials a:hover {
+		color: var(--accent-bright);
+	}
+	.moon-link:hover .lunar-rock {
+		transform: scale(1.12);
+	}
+}
+.map-hint,
+.orbit-controls {
+	min-height: 45px;
+	margin: 0;
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	font: 500 14px / 1.8 var(--font-mono);
-	text-transform: uppercase;
-	letter-spacing: 4px;
+	border-block: 1px solid var(--text-rule);
 	color: var(--text-label);
-	margin-bottom: 24px;
+	font-size: 12px;
 }
-.section-label::after,
-.company::after {
+.map-hint {
+	justify-content: center;
+}
+.orbit-controls {
+	gap: 12px;
+}
+.orbit-controls > span {
+	margin-left: auto;
+}
+.orbit-pages {
+	display: flex;
+}
+.orbit-pages a {
+	display: grid;
+	place-items: center;
+	min-width: 44px;
+	min-height: 44px;
+	font-size: 17px;
+}
+.section {
+	padding: 36px 0 14px;
+}
+.section-label {
+	font-size: 14px;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	color: var(--text-label);
+	margin: 0 0 16px;
+}
+.section-label::after {
 	content: "";
 	flex: 1;
 	height: 1px;
 	background: var(--text-rule);
 }
-.about-text {
+.routes {
+	list-style: none;
+	padding: 0;
+}
+.routes li + li {
+	border-top: 1px solid var(--text-rule);
+}
+.routes a {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 15px 0;
+}
+.routes strong {
+	display: block;
+	font: 500 26px / 1.2 var(--font-body);
+}
+.blurb {
+	display: block;
+	color: var(--text-body);
+	font: 300 19px / 1.45 var(--font-body);
+	margin-top: 5px;
+}
+.mini-body {
+	width: 24px;
+	flex: none;
+}
+.meta,
+.arrow {
+	color: var(--text-muted);
+	margin-left: auto;
+}
+.routes .meta {
+	white-space: nowrap;
+}
+.about-text,
+.article {
 	font-size: 24px;
 	font-weight: 300;
-	line-height: 1.85;
+	line-height: 1.75;
 	color: var(--text-body);
 }
 .about-text strong {
 	font-weight: 500;
-	color: var(--text-strong);
 }
-.company {
-	color: var(--accent);
-	font-size: 12px;
-	letter-spacing: 3px;
-	margin-bottom: 16px;
+.reading h1 {
+	font-size: clamp(38px, 6vw, 58px);
+	margin: 12px 0;
 }
-.company::after {
-	background: linear-gradient(90deg, var(--accent), transparent 80%);
-	opacity: 0.3;
+.reading .meta {
+	margin: 0 0 16px;
 }
-.company-group + .company-group {
-	margin-top: 32px;
+.article {
+	margin-top: 24px;
 }
-.entries {
-	list-style: none;
-	padding-left: 24px;
-	border-left: 2px solid var(--text-rule);
+.article p,
+.article h2 {
+	margin: 0 0 .9em;
 }
-.entries li + li {
-	border-top: 1px solid color-mix(in srgb, var(--text-rule) 50%, transparent);
+.article h2 {
+	font: 500 34px / 1.25 var(--font-body);
+	padding-top: .45em;
 }
-.entry {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	padding: 18px 0;
+.article a,
+.source,
+footer a {
+	text-decoration: underline;
+	text-underline-offset: 4px;
 }
-.entry-heading {
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 12px;
-	font-size: 24px;
-	font-weight: 500;
-}
-.entry-heading span {
-	font-size: 15px;
-	color: var(--text-muted);
-}
-.entry-description {
-	color: var(--text-body);
-	font-size: 19px;
-	font-weight: 300;
-	line-height: 1.7;
-}
-.techs {
-	letter-spacing: .5px;
-}
-.entry[aria-current] .entry-heading,
-.entry:focus-visible .entry-heading {
-	color: var(--accent-bright);
+.source {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
 }
 .socials {
 	display: flex;
-	align-items: start;
-	flex-direction: column;
-	gap: 14px;
-	font: 400 18px / 1.8 var(--font-mono);
+	gap: 12px 26px;
+	flex-wrap: wrap;
+	font: 400 15px / 1.8 var(--font-mono);
 	color: var(--text-body);
 }
-.marker-label {
-	font: 400 11px / 1.5 var(--font-mono);
+footer {
+	margin: 40px 0 0;
+	font-size: 10px;
+	color: var(--text-muted);
 }
-.chart {
-	overflow: clip;
-	overflow-clip-margin: 12px;
-	position: relative;
-	width: 100%;
-	aspect-ratio: 1.43;
-	isolation: isolate;
+.missing {
+	padding-top: 15vh;
 }
-.chart-plane {
-	position: absolute;
-	inset: 0;
-	transition: transform 280ms var(--ease-out);
-}
-.moon {
-	position: absolute;
-	width: 40%;
-	aspect-ratio: 1;
-	left: 51%;
-	top: 46%;
-	transform: translate(-50%, -50%);
-	border-radius: 50%;
-	background: url("./media/moon.webp") center / cover;
-	filter: grayscale(1) sepia(0.26) hue-rotate(196deg) saturate(1.6);
-	box-shadow: -9px -8px 50px 2px var(--accent-glow);
-	pointer-events: none;
-}
-.orbits {
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-}
-.orbits i {
-	position: absolute;
-	left: 51%;
-	top: 48%;
-	border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-	border-radius: 50%;
-	transform: translate(-50%, -50%) rotate(-25deg);
-	width: 87%;
-	height: 53%;
-}
-.orbits i:nth-child(2) {
-	width: 74%;
-	height: 77%;
-	transform: translate(-50%, -50%) rotate(-45deg);
-	border-color: color-mix(in srgb, var(--text) 20%, transparent);
-}
-.orbits i:nth-child(3) {
-	width: 59%;
-	height: 87%;
-	transform: translate(-50%, -50%) rotate(39deg);
-	border-style: dashed;
-	border-color: color-mix(in srgb, var(--accent) 28%, transparent);
-}
-.marker {
-	position: absolute;
-	z-index: 2;
-	display: inline-flex;
-	align-items: center;
-	gap: 9px;
-	min-height: 44px;
-	transform: translate(-8px, -50%);
-	white-space: nowrap;
-}
-.starlight {
-	display: grid;
-	place-items: center;
-	flex: none;
-	width: 14px;
-	height: 14px;
-	position: relative;
-	border-radius: 50%;
-	background: var(--accent-glow);
-	box-shadow: 0 0 18px 3px color-mix(in srgb, var(--accent) 44%, transparent);
-}
-.starlight::after {
-	content: "";
-	width: 12px;
-	height: 12px;
-	background: var(--text);
-	clip-path: polygon(50% 0, 60% 37%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-}
-.marker-label {
-	background: color-mix(in srgb, var(--bg) 89%, transparent);
-	border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
-	border-radius: 2px;
-	color: var(--text);
-	font-size: 11px;
-	padding: 4px 7px;
-}
-.marker[aria-current="page"] .marker-label {
-	background: var(--accent-bright);
-	color: var(--bg);
-}
-
-.label-left {
-	flex-direction: row-reverse;
-	transform: translate(calc(-100% + 7px), -50%);
-}
-@media (hover: hover) and (pointer: fine) {
-	.entry:hover .entry-heading,
-	.nav a:hover,
-	.source:hover,
-	.return:hover,
-	.socials a:hover {
-		color: var(--accent-bright);
-	}
-	.hero-sub a:hover {
-		color: #8bba6a;
-	}
-	.marker:hover .marker-label {
-		border-color: var(--accent-bright);
-	}
-}
-[data-instant] .chart-plane {
+[data-instant] .sky * {
 	transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
-	.chart-plane {
-		transition: none;
+	.sky * {
+		transition: none !important;
 	}
 }
 @media (max-width: 650px) {
@@ -379,52 +518,58 @@ h1,
 		padding-inline: 20px;
 	}
 	.nav {
-		padding: 48px 0 20px;
+		padding: 28px 0 16px;
 		gap: 8px;
 	}
-	.scene {
-		grid-template-columns: 1fr;
-		gap: 8px;
-		padding: 28px 0 0;
+	.nav a {
+		font-size: 11px;
+		letter-spacing: 1px;
+		padding-inline: 4px;
 	}
-	.compact-identity {
+	.scene-title {
 		display: block;
+		padding: 14px 0 0;
 	}
-	.scene > .chart {
-		grid-column: 1;
-		grid-row: 2;
-	}
-	.project-copy {
-		grid-row: 3;
-	}
-	h1,
 	.name {
-		font-size: clamp(44px, 12vw, 48px);
+		font-size: 48px;
 	}
-	.chart {
-		width: min(94%, 400px);
-		margin: 4px auto 0;
-		aspect-ratio: 1.9;
+	.role {
+		font-size: 12px;
+		letter-spacing: 2px;
+		margin: 9px 0 0;
 	}
-	.section {
-		padding: 32px 0;
+	.intro {
+		font-size: 18px;
+		max-width: none;
+		margin-top: 10px;
 	}
-	.entries {
-		padding-left: 16px;
+	.sky {
+		height: clamp(236px, 65vw, 300px);
 	}
-	.entry-heading {
-		font-size: 20px;
-	}
-	.marker {
-		gap: 4px;
-	}
-	.marker-label {
+	.planet-tag,
+	.moon-tag {
 		font-size: 10px;
 	}
-}
-.missing {
-	padding-block: 15vh;
-}
-.missing a {
-	text-decoration: underline;
+	.orbit-controls,
+	.map-hint {
+		font-size: 10px;
+	}
+	.orbit-controls {
+		gap: 4px;
+	}
+	.routes a {
+		gap: 10px;
+	}
+	.routes strong {
+		font-size: 23px;
+	}
+	.routes .meta {
+		font-size: 10px;
+	}
+	.blurb {
+		font-size: 17px;
+	}
+	.section {
+		padding-top: 28px;
+	}
 }

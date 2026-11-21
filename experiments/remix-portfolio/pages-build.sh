@@ -2,7 +2,7 @@
 set -eu
 
 # Cloudflare's existing Git integration publishes the root dist directory.
-if [ "${CF_PAGES_BRANCH:-}" != "explore/remix-portfolio" ]; then
+if [ "${CF_PAGES_BRANCH:-}" != "explore/portfolio-solar-system" ]; then
   exec npx astro build
 fi
 
