@@ -27,3 +27,30 @@ Explore this on `explore/remix-portfolio`. The first deliverable is a Cloudflare
 - Continue with Remix if the round trip feels continuous, the project URLs work directly from static hosting, and adding a project is mostly a content edit. If the scene succeeds but Remix navigation or export takes substantial bespoke code, bring the scene controller and project links back to Astro and compare.
 
 The next migration decision would cover a published Markdown post, draft exclusion, and its social image. The first preview can answer the interaction and hosting questions with the three routes above.
+
+## Branch result
+
+The [Cloudflare Pages preview](https://explore-remix-portfolio.stefanlegg-com.pages.dev/) serves the overview and three project documents. The experiment uses Remix 3.3's implicit top frame and ordinary links. Each exported document contains the full page. During enhanced navigation Remix reconciles that document and preserves the existing canvas. Browsers without the required Navigation API use ordinary page loads.
+
+Adding Catalogs took one entry in `experiments/remix-portfolio/projects.ts`, referencing the existing work description and a chart position. The page, index link, star, and export followed from that entry. A subsequent 360px viewport check caught an outer label extending beyond the chart during zoom. Right-side labels now face inward on narrow screens.
+
+On the deployed preview, Chromium passed direct visits, reloads, JavaScript-disabled links, real 404 responses, Back/Forward, focus and scroll restoration, touch input, rapid replacement, and reduced motion. Desktop and phone round trips were recorded in the experiment's local `artifacts/` directory. Phone tests used emulation.
+
+Three cold loads per site in emulated Pixel 7 Chromium on Cloudflare Pages measured **45.6 KiB** of compressed external JavaScript for Remix and **10.0 KiB** for the Astro baseline. Median largest contentful paint was **300 ms** for the prototype and **496 ms** for Astro in this run. The pages have different content and artwork. These runs used a 4× CPU slowdown, 100 ms latency, and 1.6 Mbps download. The baseline deployment has the same repository tree as the starting commit. [Astro comparison deployment](https://03fbc048.stefanlegg-com.pages.dev/)
+
+The static export and one-entry authoring workflow are simple enough to continue. The next decision is whether the feel on a physical phone justifies the extra client JavaScript. The published article is a good next route if it does.
+
+### Reproduce the experiment
+
+From `experiments/remix-portfolio/`, use Node 24.3 or later and Python 3 for the local static file server.
+
+```sh
+npm ci
+npm run check
+npm run build
+npm run preview
+```
+
+Open `http://localhost:4410`. For the browser regression suite, run `npx playwright install chromium` once, then `npm test`. The tests build and serve their own copy on port 4412. Set `PREVIEW_URL` to run them against a deployed preview, or `CHROMIUM_PATH` to use a locally installed Chromium executable.
+
+Cloudflare's Git integration calls the root build on push. For this branch the build script installs the experiment's locked dependencies, builds its static files, and copies them into the root output directory. The lunar artwork is a shaded projection of the NASA Scientific Visualization Studio's LRO color map. [Moon Kit source imagery and credits](https://svs.gsfc.nasa.gov/4720/)
