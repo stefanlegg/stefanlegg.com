@@ -69,6 +69,7 @@ h1 em { font-weight: 330; color: #dec6b9 }
   .index a { gap: 8px; padding-block: 14px }
   .company { font-size: 10px }
   .marker { gap: 4px }
+  .label-left { flex-direction: row-reverse; transform: translate(calc(-100% + 7px), -50%) }
   .marker-label { font-size: 10px }
 }
 .missing { padding-block: 15vh }

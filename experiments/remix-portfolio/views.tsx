@@ -12,7 +12,7 @@ function chart(selected?: Project) {
       <div class="orbits" aria-hidden="true"><i/><i/><i/></div>
       <div class="moon" aria-hidden="true"></div>
       {projects.map(item => <a key={item.slug} id={"star-" + item.slug} href={item.path}
-        class="marker" aria-current={selected === item ? "page" : undefined}
+        class={item.x > 62 ? "marker label-left" : "marker"} aria-current={selected === item ? "page" : undefined}
         style={{ left: item.x + "%", top: item.y + "%" }}>
         <span class="starlight" aria-hidden="true"/><span class="marker-label">{item.title}</span>
       </a>)}
