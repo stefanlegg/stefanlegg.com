@@ -4,6 +4,7 @@ import work from "../../src/data/work.ts";
 const points = [
   { title: "Cart Transform", x: 40, y: 21 },
   { title: "LanSchool Air", x: 19, y: 74 },
+  { title: "Catalogs", x: 68, y: 60 },
 ];
 
 export const projects = points.map(({ title, x, y }) => {
