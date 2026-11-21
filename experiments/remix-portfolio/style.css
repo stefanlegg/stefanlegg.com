@@ -187,7 +187,7 @@ footer {
 	left: 50%;
 	top: 50%;
 	translate: -50% -50%;
-	width: clamp(42px, 9.5cqw, 78px);
+	width: clamp(44px, 9.5cqw, 78px);
 	aspect-ratio: 1;
 	background: url("./media/sun.webp") center / cover;
 	border-radius: 50%;

@@ -30,7 +30,16 @@ function sky(scene: Scene) {
 					<i />
 					<i />
 				</div>
-				<div class="sun" aria-hidden="true"></div>
+				<a
+					class="sun"
+					id="sun"
+					href="/#about"
+					aria-label="About Stefan"
+					data-rmx-document
+					inert={!!planet || undefined}
+				>
+					<span class="planet-tag">Stefan</span>
+				</a>
 				{planets.map((p) => {
 					const selected = p === planet,
 						hidden = !!planet && !selected;
@@ -145,7 +154,9 @@ function directory({ planet, item, orbit }: Scene) {
 					</ul>
 				</section>
 				<section class="section">
-					<h2 class="section-label">About</h2>
+					<h2 class="section-label" id="about" tabIndex={-1}>
+						About
+					</h2>
 					<p class="about-text">
 						I've been building for the web for <strong>over 15 years</strong> — everything from
 						scrappy experiments to tools used by <strong>millions around the world</strong>. These

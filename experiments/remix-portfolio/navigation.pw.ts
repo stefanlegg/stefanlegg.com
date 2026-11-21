@@ -3,6 +3,9 @@ import { itemPath, orbitPath, pages, planets } from "./system.ts";
 
 test("travel from the system to a planet to a moon and back", async ({ page }) => {
 	await page.goto("/");
+	await page.getByRole("link", { name: "About Stefan" }).click();
+	await expect(page.locator("#about")).toBeInViewport();
+	await page.goBack();
 	const canvas = await page.locator("canvas").elementHandle();
 	await page.locator("#planet-work").click();
 	await expect(page.locator("h1")).toHaveText("Work");

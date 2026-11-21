@@ -32,7 +32,9 @@ try {
 			throw new Error(`Invalid content route: ${path}`);
 		const file = join(staging, path, "index.html");
 		await mkdir(dirname(file), { recursive: true });
-		await writeFile(file, "<!doctype html>" + (await renderToString(documentView(assets, scene))));
+		await writeFile(file, "<!doctype html>" + (await renderToString(documentView(assets, scene))), {
+			flag: "wx",
+		});
 	}
 	await writeFile(
 		join(staging, "404.html"),
