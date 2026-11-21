@@ -26,7 +26,7 @@ function projectIndex(selected?: Project) {
     <ul>{projects.map(item => <li key={item.slug}><a id={"index-" + item.slug} href={item.path}
       aria-current={selected === item ? "page" : undefined}>
       <span class="index-name">{item.title}</span><span class="company">{item.company}</span>
-      <span class="arrow" aria-hidden="true">↗</span>
+      <span class="arrow" aria-hidden="true">→</span>
     </a></li>)}</ul>
   </section>;
 }
@@ -42,7 +42,7 @@ export function documentView(assets: { script: string; css: string }, project?: 
     <canvas id="stars" aria-hidden="true" data-rmx-key="starfield" data-rmx-preserve-dom></canvas>
     <div class="page">
       <header class="masthead"><a class="signature" href="/" aria-label="Stefan Legg, home">
-        <span class="brand-star" aria-hidden="true">✳</span>Stefan Legg</a>
+        <span class="brand-star" aria-hidden="true">✦</span>Stefan Legg</a>
         <a class="github" href="https://github.com/stefanlegg">GitHub <span aria-hidden="true">↗</span></a>
       </header>
       <main>
