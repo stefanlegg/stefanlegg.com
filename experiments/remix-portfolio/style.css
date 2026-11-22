@@ -1,4 +1,5 @@
 @import "../../src/styles/theme.css";
+@import "../../src/styles/post.css";
 @font-face {
 	font-family: "Crimson Pro";
 	src: url("@fontsource-variable/crimson-pro/files/crimson-pro-latin-wght-normal.woff2")
@@ -104,7 +105,7 @@ a:focus-visible {
 .compact-identity {
 	display: none;
 }
-.scene > .chart {
+.scene > .chart-panel {
 	grid-column: 2;
 	grid-row: 1;
 }
@@ -390,7 +391,7 @@ h1,
 	.compact-identity {
 		display: block;
 	}
-	.scene > .chart {
+	.scene > .chart-panel {
 		grid-column: 1;
 		grid-row: 2;
 	}
@@ -427,4 +428,259 @@ h1,
 }
 .missing a {
 	text-decoration: underline;
+}
+
+.project-copy h1 {
+	font-size: clamp(36px, 5.7vw, 64px);
+	overflow-wrap: break-word;
+}
+.starlight::before {
+	content: "";
+	position: absolute;
+	inset: -6px;
+	border: 1px solid var(--accent);
+	border-radius: 50%;
+	opacity: 0;
+	transform: scale(0.8);
+	transition: opacity 160ms ease, transform 160ms var(--ease-out);
+}
+.marker[aria-current] .starlight::before,
+.marker:focus-visible .starlight::before {
+	opacity: 0.85;
+	transform: scale(1);
+}
+@media (hover: hover) and (pointer: fine) {
+	.marker:hover .starlight::before {
+		opacity: 0.85;
+		transform: scale(1);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.starlight::before {
+		transition: none;
+	}
+}
+.chart-panel {
+	min-width: 0;
+}
+.map-controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-top: 1px solid var(--text-rule);
+	margin: 4px 0 0;
+	font: 12px / 1.5 var(--font-mono);
+	color: var(--text-label);
+}
+.map-controls a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	min-height: 44px;
+	min-width: 44px;
+	color: var(--accent-bright);
+}
+.map-controls a:hover {
+	color: var(--text);
+}
+.filter label,
+.filter output,
+.site-footer,
+.sample legend {
+	font: 400 12px / 1.6 var(--font-mono);
+	color: var(--text-label);
+}
+.sample {
+	margin: 24px 0 36px;
+	padding: clamp(18px, 4vw, 32px);
+	background: linear-gradient(120deg, #a080c410, #08090e80);
+	border: 1px solid var(--text-rule);
+}
+.sample h2 {
+	margin: 0 0 12px;
+}
+.sample p {
+	color: var(--text-body);
+	font-size: 21px;
+	line-height: 1.45;
+	font-weight: 300;
+}
+.sample fieldset {
+	margin: 20px 0 12px;
+	padding: 0;
+	border: 0;
+}
+.sample legend {
+	padding: 0 0 6px;
+}
+.sample label {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+}
+.sample input {
+	position: absolute;
+	opacity: 0;
+}
+.sample label span {
+	display: block;
+	border: 1px solid var(--text-rule);
+	padding: 10px 14px;
+	font: 13px / 1.6 var(--font-mono);
+}
+.sample input:checked + span {
+	background: var(--accent-glow);
+	color: var(--accent-bright);
+	border-color: var(--accent);
+}
+.sample input:focus-visible + span {
+	outline: 2px solid var(--accent-bright);
+	outline-offset: 2px;
+}
+.sample-lines {
+	margin: 0;
+}
+.sample-lines div {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 0;
+}
+.sample-lines dd {
+	margin: 0;
+	font: 14px / 2 var(--font-mono);
+}
+.sample-lines .total {
+	border-top: 1px solid var(--text-rule);
+	padding-top: 10px;
+}
+.sample .view-1,
+.sample:has(input[value="1"]:checked) .view-0 {
+	display: none;
+}
+.sample:has(input[value="1"]:checked) .view-1 {
+	display: block;
+}
+.archive,
+.reading {
+	padding: 44px 0 54px;
+	min-height: 55vh;
+}
+.archive h1,
+.reading h1 {
+	margin-bottom: 20px;
+}
+.reading {
+	max-width: 67ch;
+	margin: auto;
+}
+.reading h1 {
+	font-size: clamp(42px, 6vw, 68px);
+}
+.reading .post {
+	margin-top: 28px;
+	font-size: 22px;
+	font-weight: 300;
+}
+.post-link,
+.saved-link {
+	display: grid;
+	gap: 6px;
+	color: var(--text-body);
+}
+.post-link {
+	border-left: 2px solid var(--accent);
+	padding: 8px 18px;
+}
+.post-link strong,
+.saved-link strong {
+	font: 500 27px / 1.25 var(--font-body);
+	color: var(--text);
+}
+.post-link strong span,
+.saved-link strong span {
+	color: var(--accent-bright);
+	font-size: 18px;
+}
+.post-link > span {
+	font-size: 21px;
+	font-weight: 300;
+	line-height: 1.6;
+}
+.filter:not([hidden]) {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 8px 16px;
+	align-items: center;
+	margin: 28px 0 16px;
+}
+.filter label {
+	grid-column: 1 / -1;
+}
+.filter input {
+	width: 100%;
+	min-height: 44px;
+	padding: 8px 12px;
+	background: #0d0e15;
+	color: var(--text);
+	border: 1px solid var(--text-faint);
+	border-radius: 2px;
+	font: 14px / 1.6 var(--font-mono);
+}
+.filter input:focus-visible {
+	outline: 2px solid var(--accent-bright);
+	outline-offset: 1px;
+}
+.saved-links {
+	padding: 0;
+	list-style: none;
+}
+.saved-link {
+	grid-template-columns: 1fr auto;
+	align-items: baseline;
+	border-top: 1px solid var(--text-rule);
+	padding: 18px 0;
+}
+.saved-link .entry-description {
+	grid-column: 1 / -1;
+}
+.site-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-top: 1px solid var(--text-rule);
+	padding: 18px 0;
+	color: var(--text-muted);
+}
+.site-footer button {
+	font: inherit;
+	color: var(--text-label);
+	background: none;
+	border: none;
+	min-height: 44px;
+	cursor: pointer;
+}
+.site-footer button:focus-visible {
+	outline: 2px solid var(--accent-bright);
+}
+@media (hover: hover) and (pointer: fine) {
+	.post-link:hover strong,
+	.saved-link:hover strong,
+	.site-footer button:hover {
+		color: var(--accent-bright);
+	}
+}
+@media (max-width: 650px) {
+	.saved-link {
+		grid-template-columns: 1fr;
+	}
+	.filter:not([hidden]) {
+		grid-template-columns: 1fr;
+	}
+	.reading .post {
+		font-size: 20px;
+	}
 }

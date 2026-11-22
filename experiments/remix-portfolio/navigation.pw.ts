@@ -59,3 +59,54 @@ test.describe("static HTML", () => {
 		expect((await page.goto("/missing-project/"))?.status()).toBe(404);
 	});
 });
+
+test("browse the full work collection and operate the product examples", async ({ page }) => {
+	await page.goto("/");
+	await page.locator("#browse-projects").click();
+	await expect(page.locator("h1")).toHaveText("Cart Transform");
+	await page.getByText("Components", { exact: true }).click();
+	await expect(page.getByText("1 × Field notebook", { exact: true })).toBeVisible();
+	await expect(page.getByText("1 × Writing kit", { exact: true })).toBeHidden();
+	await page.locator("#prev-project").click();
+	await expect(page.locator("h1")).toHaveText(projects.at(-1)!.title);
+	await page.goto("/work/catalogs/");
+	await page.getByText("Wholesale", { exact: true }).click();
+	await expect(page.getByText("Case of 12 notebooks", { exact: true })).toBeVisible();
+});
+
+test("read a post, filter bookmarks, and restore the list on Back", async ({ page }) => {
+	await page.goto("/");
+	const stars = await page.locator("canvas").elementHandle();
+	await page.locator("#nav-posts").click();
+	await page.locator(".post-link").first().click();
+	await expect(page.locator("article .post h2").first()).toBeVisible();
+	expect(await stars?.evaluate((el) => el === document.querySelector("canvas"))).toBe(true);
+	const og = await page.locator('meta[property="og:image"]').getAttribute("content");
+	const image = await page.request.get(new URL(og!).pathname);
+	expect(image.status()).toBe(200);
+	expect((await image.body()).subarray(1, 4).toString()).toBe("PNG");
+	await page.locator("#nav-bookmarks").click();
+	const filter = page.getByRole("searchbox");
+	await filter.fill("no-such-saved-link");
+	await expect(page.locator("#bookmark-count")).toHaveText("No matching bookmarks");
+	await filter.fill("tiptap");
+	await expect(page.locator(".saved-link:visible")).toHaveCount(1);
+	await page.locator("#nav-home").click();
+	await page.goBack();
+	await expect(filter).toHaveValue("tiptap");
+	await expect(page.locator(".saved-link:visible")).toHaveText(/Tiptap/);
+	await page.locator("#visit-clock").click();
+	await expect(page.locator("#visit-clock")).toHaveText(/T\+/);
+});
+
+test.describe("archives as static documents", () => {
+	test.use({ javaScriptEnabled: false });
+	test("article and bookmarks remain readable", async ({ page }) => {
+		await page.goto("/posts/");
+		await page.locator(".post-link").first().click();
+		await expect(page.locator("article .post p").first()).toBeVisible();
+		await page.locator("#nav-bookmarks").click();
+		await expect(page.locator("#bookmark-tiptap")).toHaveAttribute("href", /^https:\/\/tiptap.dev/);
+		await expect(page.getByRole("searchbox")).toHaveCount(0);
+	});
+});

@@ -54,3 +54,9 @@ npm run preview
 Open `http://localhost:4410`. For the browser regression suite, run `npx playwright install chromium` once, then `npm test`. The tests build and serve their own copy on port 4412. Set `PREVIEW_URL` to run them against a deployed preview, or `CHROMIUM_PATH` to use a locally installed Chromium executable.
 
 Cloudflare's Git integration calls the root build on push. For this branch the build script installs the experiment's locked dependencies, builds its static files, and copies them into the root output directory. The lunar artwork is a shaded projection of the NASA Scientific Visualization Studio's LRO color map. [Moon Kit source imagery and credits](https://svs.gsfc.nasa.gov/4720/)
+
+## Expanded orbital portfolio
+
+The single-planet design is the active preview. The homepage shows three featured stars. The work history and the controls below the map reach all eight project pages. Cart Transform and Catalogs include small, illustrative storefront examples. Posts and Bookmarks now have local static archives, with the newest published article also listed under Writing on the homepage. Bookmark filtering and the footer clock enhance the static pages in the browser.
+
+Install the repository dependencies as well as the experiment dependencies to build the shared post-image renderer. The Remix export uses fonts from its lockfile for article share images. Cloudflare Pages reads the exported `_redirects` for bookmark permalinks.
