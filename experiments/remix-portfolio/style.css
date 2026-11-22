@@ -340,6 +340,9 @@ h1,
 	width: 44px;
 	height: 44px;
 	border-radius: 50%;
+	--rim: var(--accent);
+	background: radial-gradient(circle, var(--bg) 16%, color-mix(in srgb, var(--bg) 80%, var(--rim)));
+	box-shadow: inset 0 0 0 1px var(--rim), 0 0 12px var(--accent-glow);
 	--orbital-angle: var(--arrival);
 	transform: translate(-50%, -50%)
 		translate(
@@ -347,6 +350,28 @@ h1,
 			calc(var(--radius-y) * sin(var(--orbital-angle)))
 		)
 		skewY(12deg);
+}
+.marker:not([aria-current])::after {
+	content: "→" / "";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	display: grid;
+	place-items: center;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background: var(--rim);
+	color: var(--bg);
+	font: 600 12px / 1 var(--font-mono);
+	pointer-events: none;
+}
+.marker:focus-visible,
+.marker:active {
+	--rim: var(--text);
+}
+.marker:active .orbiter {
+	scale: 0.92;
 }
 .marker:focus-visible,
 .marker:hover {
@@ -448,6 +473,9 @@ h1,
 	}
 }
 @media (hover: hover) and (pointer: fine) {
+	.marker:hover {
+		--rim: var(--accent-bright);
+	}
 	.entry:hover .entry-heading,
 	.nav a:hover,
 	.source:hover,
