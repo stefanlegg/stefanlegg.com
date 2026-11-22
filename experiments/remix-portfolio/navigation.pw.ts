@@ -17,12 +17,38 @@ test("history preserves the canvas and restores the overview link and scroll", a
 	await expect(page.locator("h1")).toHaveText("Catalogs");
 });
 
+test("orbital project names follow the input method", async ({ page, isMobile }) => {
+	await page.goto("/");
+	const moon = page.locator("#star-cart-transform");
+	const label = moon.locator(".marker-label");
+	await expect(moon).toHaveAccessibleName("Cart Transform");
+	if (isMobile) {
+		await expect(label).toBeVisible();
+		await moon.tap();
+	} else {
+		await expect(label).toBeHidden();
+		await page.locator(".chart").hover();
+		await moon.hover();
+		await expect(label).toBeVisible();
+		await expect(page.locator("#star-lanschool-air .marker-label")).toBeHidden();
+		await page.mouse.move(0, 0);
+		await expect(label).toBeHidden();
+		await page.locator(".hero-sub a").focus();
+		await page.keyboard.press("Tab");
+		await expect(moon).toBeFocused();
+		await expect(label).toBeVisible();
+		await page.keyboard.press("Enter");
+	}
+	await expect(page.locator("h1")).toHaveText("Cart Transform");
+});
+
 test("rapid selection settles on the last project", async ({ page }) => {
 	await page.goto("/");
 	await page.route("**/work/cart-transform/", async (route) => {
 		await new Promise((resolve) => setTimeout(resolve, 200));
 		await route.continue().catch(() => {});
 	});
+	await page.locator(".chart").hover();
 	await page.locator("#star-cart-transform").click({ noWaitAfter: true });
 	await page.locator("#star-lanschool-air").click({ noWaitAfter: true });
 	await expect(page.getByRole("heading", { name: "LanSchool Air", exact: true })).toBeFocused();

@@ -15,32 +15,29 @@ export type Page =
 	| { kind: "article"; post: Post };
 
 function chart(selected?: Project) {
-	const dx = selected ? (50 - selected.x) * 0.44 : 0;
-	const dy = selected ? (50 - selected.y) * 0.44 : 0;
+	const dx = selected ? (50 - selected.x) * 0.32 : 0;
+	const dy = selected ? (50 - selected.y) * 0.22 : 0;
 	const camera = `translate(${dx}%, ${dy}%) scale(${selected ? 1.14 : 1})`;
 	return (
-		<nav class="chart" aria-label="Project star map">
+		<nav class="chart" aria-label="Featured project orbits">
 			<div class="chart-plane" style={{ transform: camera }}>
-				<div class="orbits" aria-hidden="true">
-					<i />
-					<i />
-					<i />
+				<div class="orbital-plane">
+					<div class="planet" aria-hidden="true" />
+					{chartProjects(selected).map((item) => (
+						<div class={`orbit orbit-${item.body}`} key={item.slug}>
+							<a
+								id={"star-" + item.slug}
+								href={item.path}
+								aria-label={item.title}
+								class="marker"
+								aria-current={selected === item ? "page" : undefined}
+							>
+								<span class="orbiter" aria-hidden="true" />
+								<span class="marker-label">{item.label}</span>
+							</a>
+						</div>
+					))}
 				</div>
-				<div class="moon" aria-hidden="true"></div>
-				{chartProjects(selected).map((item) => (
-					<a
-						key={item.slug}
-						id={"star-" + item.slug}
-						href={item.path}
-						aria-label={item.title}
-						class={item.x > 62 ? "marker label-left" : "marker"}
-						aria-current={selected === item ? "page" : undefined}
-						style={{ left: item.x + "%", top: item.y + "%" }}
-					>
-						<span class="starlight" aria-hidden="true" />
-						<span class="marker-label">{item.label}</span>
-					</a>
-				))}
 			</div>
 		</nav>
 	);

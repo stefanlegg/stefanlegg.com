@@ -249,9 +249,6 @@ h1,
 	font: 400 18px / 1.8 var(--font-mono);
 	color: var(--text-body);
 }
-.marker-label {
-	font: 400 11px / 1.5 var(--font-mono);
-}
 .chart {
 	overflow: clip;
 	overflow-clip-margin: 12px;
@@ -261,95 +258,194 @@ h1,
 	isolation: isolate;
 }
 .chart-plane {
+	container-type: size;
 	position: absolute;
 	inset: 0;
 	transition: transform 280ms var(--ease-out);
 }
-.moon {
-	position: absolute;
-	width: 40%;
-	aspect-ratio: 1;
-	left: 51%;
-	top: 46%;
-	transform: translate(-50%, -50%);
-	border-radius: 50%;
-	background: url("./media/moon.webp") center / cover;
-	filter: grayscale(1) sepia(0.26) hue-rotate(196deg) saturate(1.6);
-	box-shadow: -9px -8px 50px 2px var(--accent-glow);
-	pointer-events: none;
-}
-.orbits {
+.orbital-plane {
 	position: absolute;
 	inset: 0;
+	transform: skewY(-12deg);
+}
+/*! Planet and moon texture attribution: /assets/planet-credits.txt */
+.planet {
+	position: absolute;
+	z-index: 1;
+	width: 42%;
+	aspect-ratio: 1;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%) skewY(12deg);
+	border-radius: 50%;
+	background: url("./media/planet.webp") center / cover;
+	box-shadow: -5px -4px 34px var(--accent-glow);
 	pointer-events: none;
 }
-.orbits i {
+.orbit {
 	position: absolute;
-	left: 51%;
-	top: 48%;
-	border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+	inset: calc(50% - var(--radius-y)) calc(50% - var(--radius-x));
+	pointer-events: none;
+}
+.orbit::before,
+.orbit::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: 1px solid var(--track);
 	border-radius: 50%;
-	transform: translate(-50%, -50%) rotate(-25deg);
-	width: 87%;
-	height: 53%;
 }
-.orbits i:nth-child(2) {
-	width: 74%;
-	height: 77%;
-	transform: translate(-50%, -50%) rotate(-45deg);
-	border-color: color-mix(in srgb, var(--text) 20%, transparent);
+/* The near half of the orbit passes in front of the planet. */
+.orbit::before {
+	clip-path: inset(0 0 50%);
 }
-.orbits i:nth-child(3) {
-	width: 59%;
-	height: 87%;
-	transform: translate(-50%, -50%) rotate(39deg);
-	border-style: dashed;
-	border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+.orbit::after {
+	z-index: 2;
+	clip-path: inset(50% 0 0);
+}
+.orbit-moon {
+	--radius-x: 37cqw;
+	--radius-y: 37cqh;
+	--track: color-mix(in srgb, var(--text) 21%, transparent);
+	--departure: 236deg;
+	--arrival: 249deg;
+}
+.orbit-asteroid {
+	--radius-x: 44cqw;
+	--radius-y: 23cqh;
+	--track: color-mix(in srgb, var(--accent) 40%, transparent);
+	--departure: 125deg;
+	--arrival: 137deg;
+}
+.orbit-satellite {
+	--radius-x: 35cqw;
+	--radius-y: 19cqh;
+	--track: color-mix(in srgb, var(--accent-bright) 29%, transparent);
+	--departure: 24deg;
+	--arrival: 36deg;
+}
+@property --orbital-angle {
+	syntax: "<angle>";
+	inherits: false;
+	initial-value: 0deg;
 }
 .marker {
 	position: absolute;
-	z-index: 2;
-	display: inline-flex;
-	align-items: center;
-	gap: 9px;
-	min-height: 44px;
-	transform: translate(-8px, -50%);
-	white-space: nowrap;
-}
-.starlight {
+	left: 50%;
+	top: 50%;
+	z-index: 3;
+	pointer-events: auto;
 	display: grid;
 	place-items: center;
-	flex: none;
-	width: 14px;
-	height: 14px;
-	position: relative;
+	width: 44px;
+	height: 44px;
 	border-radius: 50%;
-	background: var(--accent-glow);
-	box-shadow: 0 0 18px 3px color-mix(in srgb, var(--accent) 44%, transparent);
+	--orbital-angle: var(--arrival);
+	transform: translate(-50%, -50%)
+		translate(
+			calc(var(--radius-x) * cos(var(--orbital-angle))),
+			calc(var(--radius-y) * sin(var(--orbital-angle)))
+		)
+		skewY(12deg);
 }
-.starlight::after {
+.marker:focus-visible,
+.marker:hover {
+	z-index: 4;
+}
+.orbiter {
+	position: relative;
+	display: block;
+}
+.orbit-moon .orbiter {
+	width: 29px;
+	filter: grayscale(1) sepia(0.2) hue-rotate(205deg);
+	aspect-ratio: 1;
+	background: url("./media/moon.webp") center / cover;
+	border-radius: 50%;
+	box-shadow: -2px -1px 8px var(--accent-glow);
+}
+.orbit-asteroid .orbiter {
+	width: 26px;
+	filter: grayscale(0.9);
+	height: 18px;
+	transform: rotate(-26deg);
+	background: linear-gradient(150deg, transparent 35%, #262135a8 68%, #191923 88%),
+		url("./media/moon.webp") 38% 32% / 185%;
+	clip-path: polygon(0 46%, 14% 15%, 45% 0, 74% 9%, 99% 41%, 91% 68%, 62% 100%, 25% 89%, 6% 72%);
+}
+.orbit-satellite .orbiter {
+	width: 11px;
+	height: 16px;
+	transform: rotate(-29deg);
+	border: 1px solid #bbc1db;
+	border-radius: 2px;
+	background: linear-gradient(105deg, #d0d8ea, #a49ab9 50%, #55536c 52%, #333345);
+}
+.orbit-satellite .orbiter::before,
+.orbit-satellite .orbiter::after {
 	content: "";
-	width: 12px;
-	height: 12px;
-	background: var(--text);
-	clip-path: polygon(50% 0, 60% 37%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+	position: absolute;
+	top: 3px;
+	width: 13px;
+	height: 8px;
+	box-sizing: border-box;
+	border: 1px solid #9298b7;
+	background: repeating-linear-gradient(90deg, transparent 0 3px, #9693b9 3px 4px),
+		linear-gradient(#6b6194 43%, #b6aacd 45% 55%, #494c74 57%);
+}
+.orbit-satellite .orbiter::before {
+	right: 100%;
+}
+.orbit-satellite .orbiter::after {
+	left: 100%;
 }
 .marker-label {
-	background: color-mix(in srgb, var(--bg) 89%, transparent);
-	border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
-	border-radius: 2px;
+	position: absolute;
+	top: calc(50% + 14px);
+	padding: 3px 7px;
+	white-space: nowrap;
+	font: 400 11px / 1.5 var(--font-mono);
 	color: var(--text);
-	font-size: 11px;
-	padding: 4px 7px;
+	background: color-mix(in srgb, var(--bg) 93%, transparent);
+	border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+	border-radius: 3px;
 }
-.marker[aria-current="page"] .marker-label {
-	background: var(--accent-bright);
-	color: var(--bg);
+.orbit-asteroid .marker-label {
+	left: 5px;
 }
-
-.label-left {
-	flex-direction: row-reverse;
-	transform: translate(calc(-100% + 7px), -50%);
+.chart:has([aria-current]) .orbit-asteroid .marker-label {
+	left: calc(50% + 13px);
+	top: 50%;
+	transform: translateY(-50%);
+}
+.orbit-satellite .marker-label {
+	right: 4px;
+}
+.marker[aria-current]::before {
+	content: "";
+	position: absolute;
+	inset: 2px;
+	border: 1px solid var(--accent);
+	border-radius: 50%;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	.chart:not(:has([aria-current])) .marker {
+		animation: orbit-arrival 4s ease-in-out 700ms both;
+	}
+	.chart:is(:hover, :focus-within) .marker {
+		animation-play-state: paused;
+	}
+	@keyframes orbit-arrival {
+		from {
+			--orbital-angle: var(--departure);
+		}
+		to {
+			--orbital-angle: var(--arrival);
+		}
+	}
+	.marker-label {
+		transition: opacity 130ms var(--ease-out);
+	}
 }
 @media (hover: hover) and (pointer: fine) {
 	.entry:hover .entry-heading,
@@ -362,8 +458,13 @@ h1,
 	.hero-sub a:hover {
 		color: #8bba6a;
 	}
-	.marker:hover .marker-label {
-		border-color: var(--accent-bright);
+	.marker-label {
+		opacity: 0;
+		visibility: hidden;
+	}
+	.marker:is(:hover, :focus-visible) .marker-label {
+		opacity: 1;
+		visibility: visible;
 	}
 }
 [data-instant] .chart-plane {
@@ -405,7 +506,7 @@ h1,
 	.chart {
 		width: min(94%, 400px);
 		margin: 4px auto 0;
-		aspect-ratio: 1.9;
+		aspect-ratio: 1.57;
 	}
 	.section {
 		padding: 32px 0;
@@ -415,9 +516,6 @@ h1,
 	}
 	.entry-heading {
 		font-size: 20px;
-	}
-	.marker {
-		gap: 4px;
 	}
 	.marker-label {
 		font-size: 10px;
@@ -433,32 +531,6 @@ h1,
 .project-copy h1 {
 	font-size: clamp(36px, 5.7vw, 64px);
 	overflow-wrap: break-word;
-}
-.starlight::before {
-	content: "";
-	position: absolute;
-	inset: -6px;
-	border: 1px solid var(--accent);
-	border-radius: 50%;
-	opacity: 0;
-	transform: scale(0.8);
-	transition: opacity 160ms ease, transform 160ms var(--ease-out);
-}
-.marker[aria-current] .starlight::before,
-.marker:focus-visible .starlight::before {
-	opacity: 0.85;
-	transform: scale(1);
-}
-@media (hover: hover) and (pointer: fine) {
-	.marker:hover .starlight::before {
-		opacity: 0.85;
-		transform: scale(1);
-	}
-}
-@media (prefers-reduced-motion: reduce) {
-	.starlight::before {
-		transition: none;
-	}
 }
 .chart-panel {
 	min-width: 0;

@@ -76,6 +76,7 @@ ${b.path} ${b.url} 302`,
 			)
 			.join("\n") + "\n",
 	);
+	await cp("media/CREDITS.md", join(staging, "assets/planet-credits.txt"));
 	await cp("../../public/og-image.png", join(staging, "og-image.png"));
 	await writeFile(
 		join(staging, "404.html"),

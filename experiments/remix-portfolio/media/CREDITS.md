@@ -1,0 +1,1 @@
+The lavender planet is a recolored, shaded spherical projection of the [Jupiter texture by Solar System Scope](https://www.solarsystemscope.com/textures/), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The moon and asteroid use the existing shaded projection of the [NASA LRO Moon Kit](https://svs.gsfc.nasa.gov/4720/).

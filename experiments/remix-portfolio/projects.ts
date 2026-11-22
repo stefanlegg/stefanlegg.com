@@ -7,9 +7,9 @@ const shortNames: Record<string, string> = {
 	"Polaris & Accessibility": "Polaris",
 };
 const positions = [
-	{ x: 40, y: 21 },
-	{ x: 19, y: 74 },
-	{ x: 68, y: 60 },
+	{ body: "moon", x: 36, y: 24 },
+	{ body: "asteroid", x: 22, y: 75 },
+	{ body: "satellite", x: 76, y: 55 },
 ];
 
 const orderedWork = [
